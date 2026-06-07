@@ -2,45 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fighting Game</title>
-  <link rel="stylesheet" href="../style.css">
+  <title>Commando Shooter</title>
   <style>
     canvas { background:#000; display:block; margin:20px auto; }
   </style>
 </head>
 <body>
-  <h2>Fighting Game</h2>
-  <canvas id="fightCanvas" width="600" height="400"></canvas>
+  <h2>Commando Shooter</h2>
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
   <script>
-    const canvas=document.getElementById("fightCanvas");
+    const canvas=document.getElementById("gameCanvas");
     const ctx=canvas.getContext("2d");
-    let player={x:50,y:300,width:40,height:80,color:"blue"};
-    let enemy={x:500,y:300,width:40,height:80,color:"red"};
-    let punch=false;
+
+    let player={x:50,y:300,width:40,height:40,color:"green"};
+    let bullets=[],enemies=[],score=0;
 
     document.addEventListener("keydown",e=>{
-      if(e.key==="ArrowRight") player.x+=20;
-      if(e.key==="ArrowLeft") player.x-=20;
-      if(e.key===" ") punch=true;
+      if(e.key==="ArrowUp" && player.y>0) player.y-=20;
+      if(e.key==="ArrowDown" && player.y<360) player.y+=20;
+      if(e.key===" ") bullets.push({x:player.x+40,y:player.y+20});
     });
-    document.addEventListener("keyup",e=>{ if(e.key===" ") punch=false; });
 
-    function drawCharacter(c){
-      ctx.fillStyle=c.color;
-      ctx.fillRect(c.x,c.y,c.width,c.height);
+    function drawPlayer(){
+      ctx.fillStyle=player.color;
+      ctx.fillRect(player.x,player.y,player.width,player.height);
     }
 
-    function fight(){
+    function drawBullets(){
+      ctx.fillStyle="yellow";
+      bullets.forEach((b,i)=>{
+        ctx.fillRect(b.x,b.y,10,5);
+        b.x+=10;
+        if(b.x>600) bullets.splice(i,1);
+      });
+    }
+
+    function drawEnemies(){
+      ctx.fillStyle="red";
+      enemies.forEach((e,i)=>{
+        ctx.fillRect(e.x,e.y,40,40);
+        e.x-=5;
+        if(e.x<0) enemies.splice(i,1);
+        bullets.forEach((b,j)=>{
+          if(b.x<e.x+40 && b.x+10>e.x && b.y<e.y+40 && b.y+5>e.y){
+            enemies.splice(i,1); bullets.splice(j,1); score++;
+          }
+        });
+      });
+    }
+
+    function gameLoop(){
       ctx.clearRect(0,0,600,400);
-      drawCharacter(player);
-      drawCharacter(enemy);
-      if(punch && player.x+player.width>=enemy.x){
-        ctx.fillStyle="yellow";
-        ctx.fillText("Hit!",player.x+50,player.y-20);
-      }
-      requestAnimationFrame(fight);
+      drawPlayer();
+      drawBullets();
+      drawEnemies();
+      if(Math.random()<0.02) enemies.push({x:600,y:Math.floor(Math.random()*360)});
+      ctx.fillStyle="white";
+      ctx.fillText("Score: "+score,10,20);
+      requestAnimationFrame(gameLoop);
     }
-    fight();
+    gameLoop();
   </script>
 </body>
 </html>
