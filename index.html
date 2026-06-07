@@ -5,22 +5,32 @@
   <title>Abhishek Games</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { margin:0; background:black; color:white; text-align:center; }
-    .fight-scene { font-size:2em; animation: fight 3s forwards; }
+    body { margin:0; font-family:Arial, sans-serif; background:#000; color:#fff; text-align:center; }
+    .fight-scene { height:100vh; display:flex; justify-content:center; align-items:center; font-size:3em; animation: fight 3s forwards; }
     @keyframes fight {
-      0% { opacity:0; }
-      50% { opacity:1; transform:scale(1.2); }
-      100% { opacity:0; }
+      0% { background:#000; color:red; content:""; }
+      50% { background:#111; color:orange; }
+      100% { background:#000; opacity:0; }
     }
-    .title { opacity:0; animation: showTitle 5s forwards; animation-delay:3s; }
-    @keyframes showTitle {
-      0% { opacity:0; }
-      100% { opacity:1; }
-    }
+    .games-title { display:none; font-size:3em; margin-top:20px; }
   </style>
 </head>
 <body>
-  <div class="fight-scene">⚔️ Fighters battling...</div>
-  <h1 class="title">🎮 Abhishek Games 🎮</h1>
+  <div class="fight-scene" id="fight">⚔️ Fight!</div>
+  <div class="games-title" id="title">🎮 Abhishek Games</div>
+
+  <ul id="game-list" style="display:none; list-style:none; padding:0;">
+    <li><a href="games/tic-tac-toe.html">Tic Tac Toe</a></li>
+    <li><a href="games/snake.html">Snake Game</a></li>
+    <li><a href="games/quiz.html">Quiz Game</a></li>
+  </ul>
+
+  <script>
+    setTimeout(() => {
+      document.getElementById("fight").style.display="none";
+      document.getElementById("title").style.display="block";
+      document.getElementById("game-list").style.display="block";
+    }, 3000); // after 3 seconds
+  </script>
 </body>
 </html>
