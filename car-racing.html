@@ -2,39 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Car Racing Game</title>
-  <link rel="stylesheet" href="../style.css">
+  <title>Car Racing Pro</title>
   <style>
-    canvas { background:#333; display:block; margin:20px auto; }
+    canvas { background:#222; display:block; margin:20px auto; }
   </style>
 </head>
 <body>
-  <h2>Car Racing Game</h2>
+  <h2>Car Racing Pro</h2>
   <canvas id="raceCanvas" width="400" height="600"></canvas>
   <script>
     const canvas=document.getElementById("raceCanvas");
     const ctx=canvas.getContext("2d");
-    let car={x:180,y:500,width:40,height:80};
-    let obstacles=[];
-    let score=0;
-    document.addEventListener("keydown",moveCar);
 
-    function moveCar(e){
+    let car={x:180,y:500,width:40,height:80};
+    let roadLines=[],obstacles=[],score=0,speed=5;
+
+    document.addEventListener("keydown",e=>{
       if(e.key==="ArrowLeft" && car.x>0) car.x-=20;
       if(e.key==="ArrowRight" && car.x<360) car.x+=20;
-    }
+    });
 
     function drawCar(){
       ctx.fillStyle="blue";
       ctx.fillRect(car.x,car.y,car.width,car.height);
     }
 
+    function drawRoad(){
+      ctx.fillStyle="white";
+      roadLines.forEach(l=>{
+        ctx.fillRect(l.x,l.y,5,30);
+        l.y+=speed;
+        if(l.y>600) l.y=0;
+      });
+    }
+
     function drawObstacles(){
       ctx.fillStyle="red";
-      obstacles.forEach(o=>{
+      obstacles.forEach((o,i)=>{
         ctx.fillRect(o.x,o.y,o.width,o.height);
-        o.y+=5;
-        if(o.y>600){ obstacles.splice(obstacles.indexOf(o),1); score++; }
+        o.y+=speed;
+        if(o.y>600){ obstacles.splice(i,1); score++; }
         if(o.x<car.x+car.width && o.x+o.width>car.x && o.y<car.y+car.height && o.y+o.height>car.y){
           alert("Game Over! Score: "+score);
           document.location.reload();
@@ -44,6 +51,7 @@
 
     function gameLoop(){
       ctx.clearRect(0,0,400,600);
+      drawRoad();
       drawCar();
       drawObstacles();
       if(Math.random()<0.02){
@@ -53,6 +61,9 @@
       ctx.fillText("Score: "+score,10,20);
       requestAnimationFrame(gameLoop);
     }
+
+    // init road lines
+    for(let i=0;i<20;i++){ roadLines.push({x:200,y:i*30}); }
     gameLoop();
   </script>
 </body>
