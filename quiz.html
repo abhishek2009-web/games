@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Game</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <h2>Quiz Game</h2>
+  <div id="question"></div>
+  <div id="options"></div>
+  <div id="result"></div>
+  <script>
+    const questions=[
+      {q:"Capital of India?",options:["Delhi","Mumbai","Kolkata"],answer:0},
+      {q:"2+2=?",options:["3","4","5"],answer:1}
+    ];
+    let current=0,score=0;
+    function loadQuestion(){
+      document.getElementById("question").textContent=questions[current].q;
+      let opts=document.getElementById("options"); opts.innerHTML="";
+      questions[current].options.forEach((opt,i)=>{
+        let btn=document.createElement("button");
+        btn.textContent=opt;
+        btn.onclick=()=>checkAnswer(i);
+        opts.appendChild(btn);
+      });
+    }
+    function checkAnswer(i){
+      if(i===questions[current].answer)score++;
+      current++;
+      if(current<questions.length)loadQuestion();
+      else document.getElementById("result").textContent="Score: "+score;
+    }
+    loadQuestion();
+  </script>
+</body>
+</html>
