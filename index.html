@@ -8,36 +8,38 @@
     body { margin:0; font-family:Arial, sans-serif; background:#000; color:#fff; text-align:center; }
     .fight-scene { height:100vh; display:flex; justify-content:center; align-items:center; font-size:3em; animation: fight 3s forwards; }
     @keyframes fight {
-      0% { background:#000; color:red; content:""; }
+      0% { background:#000; color:red; }
       50% { background:#111; color:orange; }
       100% { background:#000; opacity:0; }
     }
     .games-title { display:none; font-size:3em; margin-top:20px; }
+    ul { list-style:none; padding:0; }
+    li { margin:10px 0; }
+    a { color:#0ff; text-decoration:none; font-size:1.2em; }
+    a:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
+  <!-- Fighting intro -->
   <div class="fight-scene" id="fight">⚔️ Fight!</div>
-  <div class="games-title" id="title">🎮 Abhishek Games</div>
 
-  <ul id="game-list" style="display:none; list-style:none; padding:0;">
+  <!-- Games hub -->
+  <div class="games-title" id="title">🎮 Abhishek Games</div>
+  <ul id="game-list" style="display:none;">
     <li><a href="games/tic-tac-toe.html">Tic Tac Toe</a></li>
     <li><a href="games/snake.html">Snake Game</a></li>
     <li><a href="games/quiz.html">Quiz Game</a></li>
+    <li><a href="games/car-racing.html">Car Racing Game</a></li>
+    <li><a href="games/fighting.html">Fighting Game</a></li>
   </ul>
 
   <script>
+    // After 3 seconds, hide fight scene and show games
     setTimeout(() => {
       document.getElementById("fight").style.display="none";
       document.getElementById("title").style.display="block";
       document.getElementById("game-list").style.display="block";
-    }, 3000); // after 3 seconds
+    }, 3000);
   </script>
 </body>
 </html>
-<ul id="game-list">
-  <li><a href="games/tic-tac-toe.html">Tic Tac Toe</a></li>
-  <li><a href="games/snake.html">Snake Game</a></li>
-  <li><a href="games/quiz.html">Quiz Game</a></li>
-  <li><a href="games/car-racing.html">Car Racing Game</a></li>
-  <li><a href="games/fighting.html">Fighting Game</a></li>
-</ul>
