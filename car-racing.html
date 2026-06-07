@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Racing Game</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    canvas { background:#333; display:block; margin:20px auto; }
+  </style>
+</head>
+<body>
+  <h2>Car Racing Game</h2>
+  <canvas id="raceCanvas" width="400" height="600"></canvas>
+  <script>
+    const canvas=document.getElementById("raceCanvas");
+    const ctx=canvas.getContext("2d");
+    let car={x:180,y:500,width:40,height:80};
+    let obstacles=[];
+    let score=0;
+    document.addEventListener("keydown",moveCar);
+
+    function moveCar(e){
+      if(e.key==="ArrowLeft" && car.x>0) car.x-=20;
+      if(e.key==="ArrowRight" && car.x<360) car.x+=20;
+    }
+
+    function drawCar(){
+      ctx.fillStyle="blue";
+      ctx.fillRect(car.x,car.y,car.width,car.height);
+    }
+
+    function drawObstacles(){
+      ctx.fillStyle="red";
+      obstacles.forEach(o=>{
+        ctx.fillRect(o.x,o.y,o.width,o.height);
+        o.y+=5;
+        if(o.y>600){ obstacles.splice(obstacles.indexOf(o),1); score++; }
+        if(o.x<car.x+car.width && o.x+o.width>car.x && o.y<car.y+car.height && o.y+o.height>car.y){
+          alert("Game Over! Score: "+score);
+          document.location.reload();
+        }
+      });
+    }
+
+    function gameLoop(){
+      ctx.clearRect(0,0,400,600);
+      drawCar();
+      drawObstacles();
+      if(Math.random()<0.02){
+        obstacles.push({x:Math.floor(Math.random()*360),y:0,width:40,height:80});
+      }
+      ctx.fillStyle="white";
+      ctx.fillText("Score: "+score,10,20);
+      requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+  </script>
+</body>
+</html>
