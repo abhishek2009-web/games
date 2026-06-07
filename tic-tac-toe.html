@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .board { display:grid; grid-template-columns:repeat(3,100px); gap:5px; margin:20px auto; }
+    .cell { width:100px; height:100px; background:#eee; font-size:2em; text-align:center; line-height:100px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h2>Tic Tac Toe</h2>
+  <div class="board" id="board"></div>
+  <p id="status"></p>
+  <script>
+    let board=document.getElementById("board"),status=document.getElementById("status");
+    let current="X",cells=Array(9).fill(null);
+    for(let i=0;i<9;i++){
+      let cell=document.createElement("div");
+      cell.className="cell";
+      cell.onclick=()=>makeMove(i,cell);
+      board.appendChild(cell);
+    }
+    function makeMove(i,cell){
+      if(!cells[i]){
+        cells[i]=current; cell.textContent=current;
+        if(checkWin()){ status.textContent=current+" wins!"; }
+        else current=current==="X"?"O":"X";
+      }
+    }
+    function checkWin(){
+      const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      return wins.some(([a,b,c])=>cells[a]&&cells[a]===cells[b]&&cells[a]===cells[c]);
+    }
+  </script>
+</body>
+</html>
