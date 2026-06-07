@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fighting Game</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    canvas { background:#000; display:block; margin:20px auto; }
+  </style>
+</head>
+<body>
+  <h2>Fighting Game</h2>
+  <canvas id="fightCanvas" width="600" height="400"></canvas>
+  <script>
+    const canvas=document.getElementById("fightCanvas");
+    const ctx=canvas.getContext("2d");
+    let player={x:50,y:300,width:40,height:80,color:"blue"};
+    let enemy={x:500,y:300,width:40,height:80,color:"red"};
+    let punch=false;
+
+    document.addEventListener("keydown",e=>{
+      if(e.key==="ArrowRight") player.x+=20;
+      if(e.key==="ArrowLeft") player.x-=20;
+      if(e.key===" ") punch=true;
+    });
+    document.addEventListener("keyup",e=>{ if(e.key===" ") punch=false; });
+
+    function drawCharacter(c){
+      ctx.fillStyle=c.color;
+      ctx.fillRect(c.x,c.y,c.width,c.height);
+    }
+
+    function fight(){
+      ctx.clearRect(0,0,600,400);
+      drawCharacter(player);
+      drawCharacter(enemy);
+      if(punch && player.x+player.width>=enemy.x){
+        ctx.fillStyle="yellow";
+        ctx.fillText("Hit!",player.x+50,player.y-20);
+      }
+      requestAnimationFrame(fight);
+    }
+    fight();
+  </script>
+</body>
+</html>
