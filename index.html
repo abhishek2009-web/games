@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Abhishek Games</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { margin:0; background:black; color:white; text-align:center; }
+    .fight-scene { font-size:2em; animation: fight 3s forwards; }
+    @keyframes fight {
+      0% { opacity:0; }
+      50% { opacity:1; transform:scale(1.2); }
+      100% { opacity:0; }
+    }
+    .title { opacity:0; animation: showTitle 5s forwards; animation-delay:3s; }
+    @keyframes showTitle {
+      0% { opacity:0; }
+      100% { opacity:1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="fight-scene">⚔️ Fighters battling...</div>
+  <h1 class="title">🎮 Abhishek Games 🎮</h1>
+</body>
+</html>
