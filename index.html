@@ -1,45 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Abhishek Games</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body { margin:0; font-family:Arial, sans-serif; background:#000; color:#fff; text-align:center; }
-    .fight-scene { height:100vh; display:flex; justify-content:center; align-items:center; font-size:3em; animation: fight 3s forwards; }
-    @keyframes fight {
-      0% { background:#000; color:red; }
-      50% { background:#111; color:orange; }
-      100% { background:#000; opacity:0; }
-    }
-    .games-title { display:none; font-size:3em; margin-top:20px; }
-    ul { list-style:none; padding:0; }
-    li { margin:10px 0; }
-    a { color:#0ff; text-decoration:none; font-size:1.2em; }
-    a:hover { text-decoration:underline; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultimate Games Hub</title>
+    <meta name="description" content="Explore the best collection of games at Ultimate Games Hub. Play, enjoy, and discover new adventures." />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <!-- Styles -->
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            background-color: #121212;
+            color: #fff;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        header {
+            background-color: #1f1f1f;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            font-size: 1.8em;
+            color: #00ffcc;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        nav ul li a {
+            color: #fff;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        nav ul li a:hover {
+            color: #00ffcc;
+        }
+        .hero {
+            background: url('https://images.unsplash.com/photo-1610823998077-7e8b2f0a3b2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+        .hero h2 {
+            font-size: 3em;
+            background-color: rgba(18, 18, 18, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .games-section {
+            padding: 50px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .games-section h3 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            color: #00ffcc;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .game-card {
+            background-color: #1f1f1f;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .game-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .game-info {
+            padding: 15px;
+        }
+        .game-info h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .game-info p {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        footer {
+            background-color: #1f1f1f;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        footer p {
+            color: #777;
+        }
+        /* Responsive adjustments */
+        @media(max-width: 768px){
+            .hero h2 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Fighting intro -->
-  <div class="fight-scene" id="fight">⚔️ Fight!</div>
 
-  <!-- Games hub -->
-  <div class="games-title" id="title">🎮 Abhishek Games</div>
-  <ul id="game-list" style="display:none;">
-    <li><a href="tic-tac-toe.html">Tic Tac Toe</a></li>
-    <li><a href="snake.html">Snake Game</a></li>
-    <li><a href="quiz.html">Quiz Game</a></li>
-    <li><a href="car-racing.html">Car Racing Game</a></li>
-    <li><a href="fighting.html">Fighting Game</a></li>
-  </ul>
+<header>
+    <h1>Ultimate Games Hub</h1>
+    <nav>
+        <ul>
+            <li><a href="#games">Games</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+</header>
 
-  <script>
-    // After 3 seconds, hide fight scene and show games
-    setTimeout(() => {
-      document.getElementById("fight").style.display="none";
-      document.getElementById("title").style.display="block";
-      document.getElementById("game-list").style.display="block";
-    }, 3000);
-  </script>
+<section class="hero">
+    <h2>Discover Your Next Favorite Game</h2>
+</section>
+
+<section id="games" class="games-section">
+    <h3>Featured Games</h3>
+    <div class="games-grid">
+        <!-- Example Game Card -->
+        <div class="game-card">
+            <img src="https://images.unsplash.com/photo-1622556811355-037f85b76809?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Game 1" />
+            <div class="game-info">
+                <h4>Adventure Quest</h4>
+                <p>Embark on an epic journey through mysterious lands and uncover hidden secrets.</p>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="https://images.unsplash.com/photo-1593642532973-d31b6557fa68?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Game 2" />
+            <div class="game-info">
+                <h4>Speed Racer</h4>
+                <p>Experience high-speed thrills in this fast-paced racing game.</p>
+            </div>
+        </div>
+        <div class="game-card">
+            <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Game 3" />
+            <div class="game-info">
+                <h4>Puzzle Master</h4>
+                <p>Challenge your mind with addictive puzzles and brain teasers.</p>
+            </div>
+        </div>
+        <!-- Add more game cards as needed -->
+    </div>
+</section>
+
+<!-- Optional: About Section -->
+<section id="about" class="games-section" style="background-color:#1a1a1a;">
+    <h3>About Us</h3>
+    <p style="text-align:center; max-width:800px; margin:auto; font-size:1.1em;">We curate the best games from around the world. Join us to explore new adventures, challenge yourself, and enjoy gaming like never before!</p>
+</section>
+
+<!-- Optional: Contact Section -->
+<section id="contact" class="games-section">
+    <h3>Contact Us</h3>
+    <p style="text-align:center;">Email: abhishek.143fire@gmail.com.com | Phone: +1 234 567 8900</p>
+</section>
+
+<footer>
+    <p>&copy; 2024 Ultimate Games Hub. All rights reserved.</p>
+</footer>
+
 </body>
 </html>
