@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --neon-cyan: #00f5ff;
+  --neon-orange: #ff6b00;
+  --neon-purple: #b400ff;
+  --neon-green: #00ff88;
+  --neon-yellow: #ffcc00;
+  --neon-red: #ff0044;
+  --dark-bg: #050510;
+  --card-bg: #0a0a1a;
+  --card-border: #1a1a3a;
+  --text-main: #e8e8ff;
+  --text-dim: #7070a0;
+  --glow-cyan: 0 0 20px #00f5ff66, 0 0 40px #00f5ff33;
+  --glow-orange: 0 0 20px #ff6b0066, 0 0 40px #ff6b0033;
+  --glow-purple: 0 0 20px #b400ff66, 0 0 40px #b400ff33;
+  --glow-green: 0 0 20px #00ff8866, 0 0 40px #00ff8833;
+  --glow-yellow: 0 0 20px #ffcc0066, 0 0 40px #ffcc0033;
+  --font-display: 'Orbitron', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark-bg);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ── SCANLINE ── */
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+}
+
+/* ── BACK BUTTON ── */
+.back-btn {
+  position: fixed; top: 16px; left: 16px; z-index: 100;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 4px;
+  font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: rgba(5,5,16,0.8); border: 1px solid var(--card-border);
+  color: var(--text-dim); cursor: pointer; text-decoration: none;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s;
+}
+.back-btn:hover { color: var(--neon-cyan); border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); }
+.back-btn::before { content: '←'; font-size: 1rem; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .back-btn { font-size: 0; padding: 10px; }
+  .back-btn::before { font-size: 1.2rem; }
+}
+
+/* ── TOUCH CONTROLS ── */
+.touch-controls {
+  position: fixed; inset: 0; z-index: 50; pointer-events: none;
+  display: none;
+  touch-action: none;
+}
+.touch-controls.active { display: block; }
+
+.touch-btn {
+  position: absolute; pointer-events: all;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+  font-size: 1.4rem;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-user-select: none; user-select: none;
+  transition: background 0.15s;
+}
+.touch-btn:active, .touch-btn.pressed {
+  background: rgba(255,255,255,0.2);
+  border-color: var(--neon-cyan);
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-bg); }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+@keyframes twinkle { from { opacity: 0.1; } to { opacity: 0.9; } }

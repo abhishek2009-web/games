@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>NEXUS ARENA — Ultimate Gaming Universe</title>
+<link rel="stylesheet" href="assets/css/core.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap');
-
   :root {
     --neon-cyan: #00f5ff;
     --neon-orange: #ff6b00;
     --neon-purple: #b400ff;
+    --neon-green: #00ff88;
+    --neon-yellow: #ffcc00;
     --dark-bg: #050510;
     --card-bg: #0a0a1a;
     --card-border: #1a1a3a;
@@ -19,37 +20,21 @@
     --glow-cyan: 0 0 20px #00f5ff66, 0 0 40px #00f5ff33;
     --glow-orange: 0 0 20px #ff6b0066, 0 0 40px #ff6b0033;
     --glow-purple: 0 0 20px #b400ff66, 0 0 40px #b400ff33;
+    --glow-green: 0 0 20px #00ff8866, 0 0 40px #00ff8833;
+    --glow-yellow: 0 0 20px #ffcc0066, 0 0 40px #ffcc0033;
   }
 
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--dark-bg);
-    color: var(--text-main);
-    font-family: 'Rajdhani', sans-serif;
-    overflow-x: hidden;
-    cursor: default;
-  }
-
-  /* STARFIELD */
   #starfield {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 0; overflow: hidden;
   }
-  .star {
-    position: absolute; background: white; border-radius: 50%;
-    animation: twinkle var(--d) infinite alternate;
-  }
-  @keyframes twinkle { from { opacity: 0.1; } to { opacity: 0.9; } }
 
-  /* NAV */
+  /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 5vw; height: 70px;
-    background: linear-gradient(180deg, rgba(5,5,16,0.98) 0%, rgba(5,5,16,0.0) 100%);
+    background: linear-gradient(180deg, rgba(5,5,16,0.98) 0%, rgba(5,5,16,0) 100%);
     backdrop-filter: blur(10px);
   }
   .nav-logo {
@@ -60,14 +45,16 @@
   .nav-logo span { color: var(--neon-orange); }
   .nav-links { display: flex; gap: 2rem; list-style: none; }
   .nav-links a {
-    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem;
+    font-weight: 600; font-size: 0.95rem;
     letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--text-dim); text-decoration: none;
     transition: color 0.2s, text-shadow 0.2s;
   }
   .nav-links a:hover { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+  .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; }
+  .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text-dim); transition: all 0.2s; border-radius: 1px; }
 
-  /* HERO */
+  /* ── HERO ── */
   .hero {
     position: relative; z-index: 1;
     min-height: 100vh;
@@ -127,7 +114,7 @@
   }
   .btn-secondary:hover { background: var(--neon-orange); color: var(--dark-bg); transform: translateY(-2px); }
 
-  /* SCROLL INDICATOR */
+  /* ── SCROLL INDICATOR ── */
   .scroll-hint {
     position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
     display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
@@ -141,7 +128,7 @@
   }
   @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
 
-  /* GAMES SECTION */
+  /* ── SECTION ── */
   .section { position: relative; z-index: 1; padding: 8rem 5vw; }
   .section-label {
     font-family: 'Share Tech Mono', monospace; font-size: 0.7rem;
@@ -155,8 +142,8 @@
   }
   .section-sub { font-size: 1.1rem; color: var(--text-dim); max-width: 500px; margin-bottom: 4rem; line-height: 1.6; }
 
-  /* GAME CARDS */
-  .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2px; }
+  /* ── GAMES GRID ── */
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2px; }
 
   .game-card {
     position: relative; overflow: hidden;
@@ -170,6 +157,11 @@
   .game-card.fight { --accent: var(--neon-orange); }
   .game-card.race  { --accent: var(--neon-cyan); }
   .game-card.arena { --accent: var(--neon-purple); }
+  .game-card.ninja { --accent: var(--neon-green); }
+  .game-card.space { --accent: var(--neon-purple); }
+  .game-card.tank  { --accent: var(--neon-yellow); }
+
+  .game-card.hidden { display: none; }
 
   .card-glow {
     position: absolute; inset: 0; pointer-events: none; opacity: 0;
@@ -177,7 +169,7 @@
     transition: opacity 0.4s;
   }
   .card-canvas {
-    width: 100%; height: 220px; display: block;
+    width: 100%; height: 200px; display: block;
     background: #080818;
   }
   .card-body { padding: 1.8rem 2rem; }
@@ -207,7 +199,33 @@
   .card-link:hover { gap: 0.9rem; }
   .card-link::after { content: '→'; font-size: 1.1rem; }
 
-  /* STATS BAND */
+  /* ── SEARCH / FILTER ── */
+  .game-toolbar {
+    display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .game-search {
+    flex: 1; min-width: 200px;
+    padding: 0.7rem 1rem; border-radius: 4px;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    color: var(--text-main); font-family: var(--font-body);
+    font-size: 0.9rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .game-search:focus { border-color: var(--neon-cyan); }
+  .game-search::placeholder { color: var(--text-dim); }
+  .game-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 0.5rem 1rem; border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    background: transparent; border: 1px solid var(--card-border);
+    color: var(--text-dim); cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+  .filter-btn.active { background: var(--neon-cyan); color: var(--dark-bg); border-color: var(--neon-cyan); }
+
+  /* ── STATS BAND ── */
   .stats-band {
     position: relative; z-index: 1;
     background: var(--card-bg); border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border);
@@ -222,7 +240,7 @@
   }
   .stat-label { font-size: 0.85rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-top: 0.3rem; }
 
-  /* FOOTER */
+  /* ── FOOTER ── */
   footer {
     position: relative; z-index: 1;
     background: #030308; border-top: 1px solid var(--card-border);
@@ -231,12 +249,44 @@
   .footer-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.2rem; color: var(--neon-cyan); margin-bottom: 1rem; }
   .footer-copy { font-size: 0.8rem; color: var(--text-dim); letter-spacing: 0.1em; }
 
-  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 4vw; height: 60px; }
+    .nav-logo { font-size: 1.1rem; }
+    .nav-links {
+      position: fixed; top: 60px; left: 0; right: 0;
+      flex-direction: column; gap: 0; background: rgba(5,5,16,0.98);
+      backdrop-filter: blur(10px); border-bottom: 1px solid var(--card-border);
+      transform: translateY(-110%); transition: transform 0.3s;
+      padding: 1rem 0;
+    }
+    .nav-links.open { transform: translateY(0); }
+    .nav-links a { padding: 0.8rem 4vw; display: block; }
+    .nav-hamburger { display: flex; }
 
-  /* Scanline overlay */
-  body::after {
-    content: ''; position: fixed; inset: 0; z-index: 999; pointer-events: none;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    .hero-eyebrow { font-size: 0.6rem; }
+    .hero-sub { font-size: 1rem; max-width: 90%; }
+    .btn-primary, .btn-secondary { padding: 0.75rem 1.5rem; font-size: 0.75rem; }
+
+    .games-grid { grid-template-columns: 1fr; gap: 2px; }
+    .card-canvas { height: 160px; }
+    .card-body { padding: 1.2rem 1.5rem; }
+    .card-title { font-size: 1.1rem; }
+
+    .section { padding: 5rem 4vw; }
+
+    .stats-band { padding: 2rem 4vw; gap: 1.5rem; }
+    .stat-num { font-size: 1.8rem; }
+
+    .game-toolbar { flex-direction: column; align-items: stretch; }
+    .game-search { min-width: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title { font-size: clamp(2.2rem, 12vw, 4rem); }
+    .hero-cta { flex-direction: column; align-items: center; }
+    .card-canvas { height: 140px; }
+    .scroll-hint { display: none; }
   }
 </style>
 </head>
@@ -246,25 +296,28 @@
 
 <nav>
   <div class="nav-logo">NEXUS<span>ARENA</span></div>
+  <div class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </div>
   <ul class="nav-links">
-    <li><a href="#games">Games</a></li>
-    <li><a href="#stats">Stats</a></li>
-    <li><a href="fighting.html">Fight</a></li>
-    <li><a href="car-racing.html">Race</a></li>
+    <li><a href="#games" onclick="document.querySelector('.nav-links').classList.remove('open')">Games</a></li>
+    <li><a href="#stats" onclick="document.querySelector('.nav-links').classList.remove('open')">Stats</a></li>
+    <li><a href="games/fighting.html">Fight</a></li>
+    <li><a href="games/car-racing.html">Race</a></li>
   </ul>
 </nav>
 
 <section class="hero">
   <div class="hero-bg"></div>
-  <div class="hero-eyebrow">⚡ The Ultimate Gaming Universe</div>
+  <div class="hero-eyebrow">The Ultimate Gaming Universe</div>
   <h1 class="hero-title">
     <span class="line1">NEXUS</span>
     <span class="line2">ARENA</span>
   </h1>
-  <p class="hero-sub">Enter a world of supernatural combat, ultra-speed racing, and legendary battles. Your arena. Your rules. No limits.</p>
+  <p class="hero-sub">Five legendary games. Infinite power. One arena. Choose your battleground and become a champion.</p>
   <div class="hero-cta">
-    <a href="fighting.html" class="btn-primary">Start Fighting</a>
-    <a href="car-racing.html" class="btn-secondary">Race Now</a>
+    <a href="games/fighting.html" class="btn-primary">Start Fighting</a>
+    <a href="games/car-racing.html" class="btn-secondary">Race Now</a>
   </div>
   <div class="scroll-hint">SCROLL</div>
 </section>
@@ -272,12 +325,21 @@
 <section class="section" id="games">
   <div class="section-label">// Choose Your Battle</div>
   <h2 class="section-title">PICK YOUR GAME</h2>
-  <p class="section-sub">Two worlds. Infinite power. One champion. Which legend will you become?</p>
+  <p class="section-sub">Five worlds. Infinite power. One champion. Which legend will you become?</p>
+
+  <div class="game-toolbar">
+    <input class="game-search" id="gameSearch" type="text" placeholder="Search games..." oninput="filterGames(this.value)">
+    <div class="game-filters">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-filter="action" onclick="setFilter('action',this)">Action</button>
+      <button class="filter-btn" data-filter="racing" onclick="setFilter('racing',this)">Racing</button>
+      <button class="filter-btn" data-filter="shooter" onclick="setFilter('shooter',this)">Shooter</button>
+    </div>
+  </div>
 
   <div class="games-grid">
 
-    <!-- FIGHTING CARD -->
-    <div class="game-card fight" onclick="location.href='fighting.html'">
+    <div class="game-card fight" data-filter="action" onclick="location.href='games/fighting.html'">
       <div class="card-glow"></div>
       <canvas class="card-canvas" id="fightCanvas"></canvas>
       <div class="card-body">
@@ -290,12 +352,11 @@
           <span class="feat-tag">BOSS BATTLES</span>
           <span class="feat-tag">ULTIMATE SKILLS</span>
         </div>
-        <a href="fighting.html" class="card-link">Enter the Dojo</a>
+        <a href="games/fighting.html" class="card-link">Enter the Dojo</a>
       </div>
     </div>
 
-    <!-- RACING CARD -->
-    <div class="game-card race" onclick="location.href='car-racing.html'">
+    <div class="game-card race" data-filter="racing" onclick="location.href='games/car-racing.html'">
       <div class="card-glow"></div>
       <canvas class="card-canvas" id="raceCanvas"></canvas>
       <div class="card-body">
@@ -308,7 +369,58 @@
           <span class="feat-tag">BOOST SYSTEM</span>
           <span class="feat-tag">NEON CITIES</span>
         </div>
-        <a href="car-racing.html" class="card-link">Hit the Road</a>
+        <a href="games/car-racing.html" class="card-link">Hit the Road</a>
+      </div>
+    </div>
+
+    <div class="game-card ninja" data-filter="action" onclick="location.href='games/ninja-runner.html'">
+      <div class="card-glow"></div>
+      <canvas class="card-canvas" id="ninjaCanvas"></canvas>
+      <div class="card-body">
+        <div class="card-tag">// Platformer · Action · Stealth</div>
+        <div class="card-title">NINJA RUNNER</div>
+        <p class="card-desc">Run, jump, and slash through moonlit forests as a shadow ninja. Master wall jumps, throw shurikens, and defeat enemies in this fast-paced platformer.</p>
+        <div class="card-features">
+          <span class="feat-tag">WALL JUMP</span>
+          <span class="feat-tag">SHURIKENS</span>
+          <span class="feat-tag">COINS</span>
+          <span class="feat-tag">ENDLESS RUN</span>
+        </div>
+        <a href="games/ninja-runner.html" class="card-link">Run Ninja</a>
+      </div>
+    </div>
+
+    <div class="game-card space" data-filter="shooter" onclick="location.href='games/space.html'">
+      <div class="card-glow"></div>
+      <canvas class="card-canvas" id="spaceCanvas"></canvas>
+      <div class="card-body">
+        <div class="card-tag">// Space · Shooter · Waves</div>
+        <div class="card-title">STELLAR ASSAULT</div>
+        <p class="card-desc">Defend the galaxy in this intense space shooter. Battle waves of enemies, collect powerups, and destroy massive boss warships.</p>
+        <div class="card-features">
+          <span class="feat-tag">BOSS FIGHTS</span>
+          <span class="feat-tag">POWERUPS</span>
+          <span class="feat-tag">WAVES</span>
+          <span class="feat-tag">RAPID FIRE</span>
+        </div>
+        <a href="games/space.html" class="card-link">Launch Assault</a>
+      </div>
+    </div>
+
+    <div class="game-card tank" data-filter="shooter" onclick="location.href='games/tankfight.html'">
+      <div class="card-glow"></div>
+      <canvas class="card-canvas" id="tankCanvas"></canvas>
+      <div class="card-body">
+        <div class="card-tag">// Strategy · Combat · Destruction</div>
+        <div class="card-title">TANK BATTALION</div>
+        <p class="card-desc">Command your tank in strategic battlefield combat. Destroy enemy tanks, use homing missiles, activate shields, and survive escalating waves.</p>
+        <div class="card-features">
+          <span class="feat-tag">HOMING MISSILES</span>
+          <span class="feat-tag">SHIELDS</span>
+          <span class="feat-tag">WALLS</span>
+          <span class="feat-tag">WAVES</span>
+        </div>
+        <a href="games/tankfight.html" class="card-link">Deploy Tank</a>
       </div>
     </div>
 
@@ -316,168 +428,224 @@
 </section>
 
 <div class="stats-band" id="stats">
-  <div class="stat"><div class="stat-num" data-target="2">0</div><div class="stat-label">Epic Games</div></div>
+  <div class="stat"><div class="stat-num" data-target="5">0</div><div class="stat-label">Epic Games</div></div>
   <div class="stat"><div class="stat-num" data-target="50">0</div><div class="stat-label">Unique Moves</div></div>
-  <div class="stat"><div class="stat-num" data-target="12">0</div><div class="stat-label">Boss Levels</div></div>
+  <div class="stat"><div class="stat-num" data-target="15">0</div><div class="stat-label">Boss Levels</div></div>
   <div class="stat"><div class="stat-num" data-target="999">0</div><div class="stat-label">Max Speed km/h</div></div>
 </div>
 
 <footer>
   <div class="footer-logo">NEXUS ARENA</div>
-  <p class="footer-copy">© 2025 NEXUS ARENA · All Rights Reserved · Built for Champions</p>
+  <p class="footer-copy">&copy; 2025 NEXUS ARENA &middot; All Rights Reserved &middot; Built for Champions</p>
 </footer>
 
+<script src="assets/js/shared.js"></script>
 <script>
-// ── STARFIELD ──
-const sf = document.getElementById('starfield');
-for (let i = 0; i < 200; i++) {
-  const s = document.createElement('div');
-  s.className = 'star';
-  const sz = Math.random() * 2.5 + 0.5;
-  s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;opacity:${Math.random()*0.6+0.1};--d:${(Math.random()*4+2).toFixed(1)}s;animation-delay:${(Math.random()*5).toFixed(1)}s`;
-  sf.appendChild(s);
-}
+createStarfield('starfield', 200);
 
-// ── FIGHT CANVAS PREVIEW ──
-(function(){
-  const c = document.getElementById('fightCanvas');
-  const ctx = c.getContext('2d');
-  c.width = c.offsetWidth; c.height = c.offsetHeight;
-  let t = 0;
-  function drawFighter(x,y,facing,color,aura,frame) {
-    ctx.save(); ctx.translate(x,y);
-    if(!facing) ctx.scale(-1,1);
-    // Aura
-    const g = ctx.createRadialGradient(0,-40,5,0,-40,60);
-    g.addColorStop(0,aura+'88'); g.addColorStop(1,aura+'00');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,-40,60,0,Math.PI*2); ctx.fill();
-    // Body
-    const kick = Math.sin(frame*0.15)*20;
-    // legs
-    ctx.fillStyle=color;
-    ctx.beginPath(); ctx.roundRect(-8,-20+kick,14,40,3); ctx.fill();
-    // torso
-    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-13,-65,26,50,4); ctx.fill();
-    // head
-    ctx.fillStyle='#ffcc99'; ctx.beginPath(); ctx.arc(0,-80,16,0,Math.PI*2); ctx.fill();
-    // belt
-    ctx.fillStyle='#ff6b00'; ctx.fillRect(-13,-25,26,7);
-    // fist glow
-    ctx.shadowColor=aura; ctx.shadowBlur=15;
-    ctx.fillStyle=aura; ctx.beginPath(); ctx.arc(18,-55+Math.sin(frame*0.1)*10,8,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0;
-    ctx.restore();
-  }
-  function loop() {
-    ctx.clearRect(0,0,c.width,c.height);
-    // floor
-    const flr=ctx.createLinearGradient(0,c.height-30,0,c.height);
-    flr.addColorStop(0,'#1a0a3a'); flr.addColorStop(1,'#050510');
-    ctx.fillStyle=flr; ctx.fillRect(0,c.height-30,c.width,30);
-    // grid lines
-    ctx.strokeStyle='#ffffff08'; ctx.lineWidth=1;
-    for(let i=0;i<c.width;i+=30){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,c.height);ctx.stroke();}
-    for(let j=0;j<c.height;j+=30){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(c.width,j);ctx.stroke();}
-    // fighters
-    drawFighter(c.width*0.28, c.height-30, true, '#ff6b0066', '#ff6b00', t);
-    drawFighter(c.width*0.72, c.height-30, false, '#00f5ff44', '#00f5ff', t+30);
-    // vs
-    ctx.font='bold 22px Orbitron,monospace'; ctx.fillStyle='#ffffff22';
-    ctx.textAlign='center'; ctx.fillText('VS', c.width/2, c.height/2);
-    // energy bolts
-    if(Math.sin(t*0.08)>0.7) {
-      ctx.strokeStyle='#ff6b00'; ctx.lineWidth=2; ctx.shadowColor='#ff6b00'; ctx.shadowBlur=10;
-      ctx.beginPath(); ctx.moveTo(c.width*0.35,c.height-70); ctx.lineTo(c.width*0.65,c.height-70); ctx.stroke();
-      ctx.shadowBlur=0;
-    }
-    t++; requestAnimationFrame(loop);
-  }
-  loop();
-})();
-
-// ── RACE CANVAS PREVIEW ──
-(function(){
-  const c = document.getElementById('raceCanvas');
-  const ctx = c.getContext('2d');
-  c.width = c.offsetWidth; c.height = c.offsetHeight;
-  let t = 0, bgOffset = 0;
-  function drawCar(x,y,color,glow,scale=1) {
-    ctx.save(); ctx.translate(x,y); ctx.scale(scale,scale);
-    // body glow
-    ctx.shadowColor=glow; ctx.shadowBlur=20;
-    // car body
-    ctx.fillStyle=color; ctx.beginPath();
-    ctx.roundRect(-30,-14,60,20,4); ctx.fill();
-    ctx.fillStyle=color; ctx.beginPath();
-    ctx.roundRect(-20,-28,40,16,6); ctx.fill();
-    // windshield
-    ctx.fillStyle='rgba(0,245,255,0.5)'; ctx.beginPath();
-    ctx.roundRect(-15,-27,30,12,3); ctx.fill();
-    // wheels
-    ctx.shadowBlur=0;
-    ctx.fillStyle='#222'; 
-    [[−20,8],[20,8]].forEach(([wx,wy])=>{ctx.beginPath();ctx.arc(wx,wy,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#555';ctx.lineWidth=2;ctx.stroke();});
-    ctx.shadowBlur=0;
-    ctx.restore();
-  }
-  function loop() {
-    ctx.clearRect(0,0,c.width,c.height);
-    bgOffset = (bgOffset+3)%c.width;
-    // sky gradient
-    const sky=ctx.createLinearGradient(0,0,0,c.height*0.6);
-    sky.addColorStop(0,'#050520'); sky.addColorStop(1,'#0a0530');
-    ctx.fillStyle=sky; ctx.fillRect(0,0,c.width,c.height*0.6);
-    // road
-    const road=ctx.createLinearGradient(0,c.height*0.55,0,c.height);
-    road.addColorStop(0,'#111125'); road.addColorStop(1,'#080815');
-    ctx.fillStyle=road; ctx.fillRect(0,c.height*0.55,c.width,c.height);
-    // road lines
-    ctx.strokeStyle='#ffffff18'; ctx.lineWidth=2; ctx.setLineDash([30,20]);
-    ctx.lineDashOffset=-bgOffset*2;
-    ctx.beginPath(); ctx.moveTo(0,c.height*0.75); ctx.lineTo(c.width,c.height*0.75); ctx.stroke();
-    ctx.setLineDash([]);
-    // neon buildings
-    const buildings=[[0.1,0.2,0.08,0.4,'#00f5ff'],[0.25,0.15,0.06,0.45,'#b400ff'],[0.45,0.1,0.1,0.5,'#ff6b00'],[0.65,0.18,0.07,0.42,'#00f5ff'],[0.82,0.12,0.09,0.48,'#b400ff']];
-    buildings.forEach(([bx,bh,bw,base,bc])=>{
-      const rx=(bx*c.width-bgOffset*0.3+c.width)%c.width;
-      ctx.fillStyle='#0a0a20'; ctx.fillRect(rx,c.height*base-c.height*bh,c.width*bw,c.height*bh);
-      ctx.strokeStyle=bc+'66'; ctx.lineWidth=1;
-      ctx.strokeRect(rx,c.height*base-c.height*bh,c.width*bw,c.height*bh);
-      // windows
-      ctx.fillStyle=bc+'44';
-      for(let r=0;r<Math.floor(c.height*bh/12);r++)
-        for(let col=0;col<3;col++)
-          ctx.fillRect(rx+4+col*8, c.height*base-c.height*bh+4+r*12, 5,7);
-    });
-    // player car
-    drawCar(c.width*0.3, c.height*0.72, '#00f5ff', '#00f5ff');
-    // speed lines
-    ctx.strokeStyle='#ffffff22'; ctx.lineWidth=1;
-    for(let i=0;i<6;i++){
-      const ly=c.height*0.62+i*10;
-      ctx.beginPath(); ctx.moveTo(c.width*0.5,ly); ctx.lineTo(c.width,ly); ctx.stroke();
-    }
-    t++; requestAnimationFrame(loop);
-  }
-  loop();
-})();
-
-// ── COUNTER ANIMATION ──
-function animateCounters() {
-  document.querySelectorAll('[data-target]').forEach(el => {
-    const target = +el.dataset.target;
-    let current = 0;
-    const step = target / 60;
-    const id = setInterval(() => {
-      current = Math.min(current + step, target);
-      el.textContent = Math.floor(current) + (target >= 100 ? '+' : '');
-      if (current >= target) clearInterval(id);
-    }, 20);
+// ── FILTER ──
+function setFilter(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.game-card').forEach(card => {
+    if (filter === 'all') { card.classList.remove('hidden'); return; }
+    card.classList.toggle('hidden', card.dataset.filter !== filter);
   });
+  document.getElementById('gameSearch').value = '';
 }
+
+function filterGames(value) {
+  const q = value.toLowerCase().trim();
+  document.querySelectorAll('.game-card').forEach(card => {
+    if (!q) { card.classList.remove('hidden'); return; }
+    const title = card.querySelector('.card-title').textContent.toLowerCase();
+    const desc = card.querySelector('.card-desc').textContent.toLowerCase();
+    const tags = Array.from(card.querySelectorAll('.feat-tag')).map(t => t.textContent.toLowerCase()).join(' ');
+    card.classList.toggle('hidden', !(title.includes(q) || desc.includes(q) || tags.includes(q)));
+  });
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+}
+
+// ── COUNTER ──
 const statsEl = document.getElementById('stats');
-const obs = new IntersectionObserver(e => { if(e[0].isIntersecting){ animateCounters(); obs.disconnect(); } });
+const obs = new IntersectionObserver(e => {
+  if (e[0].isIntersecting) {
+    animateCounters('[data-target]');
+    obs.disconnect();
+  }
+});
 obs.observe(statsEl);
+
+// ── CANVAS PREVIEWS ──
+(function(){
+  const drawFightPreview = (c) => {
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    let t = 0;
+    function drawFighter(x,y,facing,color,aura) {
+      ctx.save(); ctx.translate(x,y);
+      if (!facing) ctx.scale(-1,1);
+      const g = ctx.createRadialGradient(0,-40,5,0,-40,60);
+      g.addColorStop(0,aura+'88'); g.addColorStop(1,aura+'00');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,-40,60,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=color;
+      ctx.beginPath(); ctx.roundRect(-8,-20,14,40,3); ctx.fill();
+      ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-13,-65,26,50,4); ctx.fill();
+      ctx.fillStyle='#ffcc99'; ctx.beginPath(); ctx.arc(0,-80,16,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ff6b00'; ctx.fillRect(-13,-25,26,7);
+      ctx.shadowColor=aura; ctx.shadowBlur=15;
+      ctx.fillStyle=aura; ctx.beginPath(); ctx.arc(18,-55+Math.sin(t*0.1)*10,8,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.restore();
+    }
+    function loop() {
+      ctx.clearRect(0,0,c.width,c.height);
+      const flr=ctx.createLinearGradient(0,c.height-30,0,c.height);
+      flr.addColorStop(0,'#1a0a3a'); flr.addColorStop(1,'#050510');
+      ctx.fillStyle=flr; ctx.fillRect(0,c.height-30,c.width,30);
+      ctx.strokeStyle='#ffffff08'; ctx.lineWidth=1;
+      for(let i=0;i<c.width;i+=30){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,c.height);ctx.stroke();}
+      for(let j=0;j<c.height;j+=30){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(c.width,j);ctx.stroke();}
+      drawFighter(c.width*0.28, c.height-30, true, '#ff6b0066', '#ff6b00');
+      drawFighter(c.width*0.72, c.height-30, false, '#00f5ff44', '#00f5ff');
+      ctx.font='bold 22px Orbitron,monospace'; ctx.fillStyle='#ffffff22';
+      ctx.textAlign='center'; ctx.fillText('VS', c.width/2, c.height/2);
+      t++; requestAnimationFrame(loop);
+    }
+    loop();
+  };
+
+  const drawRacePreview = (c) => {
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    let t = 0, bgOffset = 0;
+    function drawCar(x,y,color,glow) {
+      ctx.save(); ctx.translate(x,y);
+      ctx.shadowColor=glow; ctx.shadowBlur=20;
+      ctx.fillStyle=color; ctx.beginPath();
+      ctx.roundRect(-30,-14,60,20,4); ctx.fill();
+      ctx.fillStyle=color; ctx.beginPath();
+      ctx.roundRect(-20,-28,40,16,6); ctx.fill();
+      ctx.fillStyle='rgba(0,245,255,0.5)'; ctx.beginPath();
+      ctx.roundRect(-15,-27,30,12,3); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fillStyle='#222';
+      [[-20,8],[20,8]].forEach(([wx,wy])=>{ctx.beginPath();ctx.arc(wx,wy,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#555';ctx.lineWidth=2;ctx.stroke();});
+      ctx.restore();
+    }
+    function loop() {
+      ctx.clearRect(0,0,c.width,c.height);
+      bgOffset = (bgOffset+3)%c.width;
+      const sky=ctx.createLinearGradient(0,0,0,c.height*0.6);
+      sky.addColorStop(0,'#050520'); sky.addColorStop(1,'#0a0530');
+      ctx.fillStyle=sky; ctx.fillRect(0,0,c.width,c.height*0.6);
+      const road=ctx.createLinearGradient(0,c.height*0.55,0,c.height);
+      road.addColorStop(0,'#111125'); road.addColorStop(1,'#080815');
+      ctx.fillStyle=road; ctx.fillRect(0,c.height*0.55,c.width,c.height);
+      ctx.strokeStyle='#ffffff18'; ctx.lineWidth=2; ctx.setLineDash([30,20]);
+      ctx.lineDashOffset=-bgOffset*2;
+      ctx.beginPath(); ctx.moveTo(0,c.height*0.75); ctx.lineTo(c.width,c.height*0.75); ctx.stroke();
+      ctx.setLineDash([]);
+      drawCar(c.width*0.3, c.height*0.72, '#00f5ff', '#00f5ff');
+      t++; requestAnimationFrame(loop);
+    }
+    loop();
+  };
+
+  const drawNinjaPreview = (c) => {
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    let t = 0;
+    function loop() {
+      ctx.clearRect(0,0,c.width,c.height);
+      const g=ctx.createLinearGradient(0,0,0,c.height);
+      g.addColorStop(0,'#050a05');g.addColorStop(0.6,'#0a1a0a');g.addColorStop(1,'#050a05');
+      ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
+      ctx.save();ctx.translate(c.width*0.8,c.height*0.15);
+      ctx.fillStyle='#ccddcc';ctx.beginPath();ctx.arc(0,0,30,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#050a05bb';ctx.beginPath();ctx.arc(8,-5,24,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      const x = c.width*0.3, y = c.height*0.6;
+      ctx.save();ctx.translate(x,y);
+      const run = Math.sin(t*0.25)*8;
+      ctx.fillStyle='#111';ctx.beginPath();ctx.roundRect(-9,-45,18,25,3);ctx.fill();
+      ctx.save();ctx.rotate(run*Math.PI/180);ctx.beginPath();ctx.roundRect(-6,-20,10,20,2);ctx.fill();ctx.restore();
+      ctx.save();ctx.rotate(-run*Math.PI/180);ctx.beginPath();ctx.roundRect(-4,-20,10,20,2);ctx.fill();ctx.restore();
+      ctx.fillStyle='#cc0000';ctx.fillRect(-11,-40,22,5);
+      ctx.fillStyle='#111';ctx.beginPath();ctx.arc(0,-40,11,0,Math.PI*2);ctx.fill();
+      ctx.shadowColor='#00ff88';ctx.shadowBlur=8;ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(4,-39,2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      ctx.globalAlpha=1;ctx.restore();
+      t++; requestAnimationFrame(loop);
+    }
+    loop();
+  };
+
+  const drawSpacePreview = (c) => {
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    let t = 0;
+    function loop() {
+      ctx.fillStyle='#020215';ctx.fillRect(0,0,c.width,c.height);
+      const stars=[];
+      for(let i=0;i<50;i++){stars.push({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*1.5+0.5});}
+      stars.forEach(s=>{ctx.fillStyle='#fff';ctx.globalAlpha=0.5+Math.random()*0.5;ctx.beginPath();ctx.arc(s.x,s.y,s.s,0,Math.PI*2);ctx.fill();});
+      ctx.globalAlpha=1;
+      ctx.save();ctx.translate(c.width*0.5,c.height*0.6);
+      ctx.shadowColor='#b400ff';ctx.shadowBlur=15;
+      ctx.fillStyle='#b400ff';ctx.beginPath();ctx.moveTo(0,-20);ctx.lineTo(12,10);ctx.lineTo(-12,10);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#00f5ff44';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(7,4);ctx.lineTo(-7,4);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#8800cc';ctx.beginPath();ctx.moveTo(-12,8);ctx.lineTo(-24,16);ctx.lineTo(-10,14);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(12,8);ctx.lineTo(24,16);ctx.lineTo(10,14);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#ffcc00';ctx.shadowColor='#ffcc00';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(-8,12,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(8,12,4,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;ctx.restore();
+      t++; requestAnimationFrame(loop);
+    }
+    loop();
+  };
+
+  const drawTankPreview = (c) => {
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    let t = 0;
+    function loop() {
+      ctx.fillStyle='#0e1000';ctx.fillRect(0,0,c.width,c.height);
+      ctx.strokeStyle='#1a1500';ctx.lineWidth=1;
+      for(let x=0;x<c.width;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,c.height);ctx.stroke();}
+      for(let y=0;y<c.height;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(c.width,y);ctx.stroke();}
+      ctx.save();ctx.translate(c.width*0.5-30,c.height*0.7);
+      ctx.fillStyle='#111';
+      [[-18,0],[18,0]].forEach(([tx])=>{ctx.fillRect(tx-4,-18,8,36);});
+      ctx.fillStyle='#003322';ctx.beginPath();ctx.roundRect(-14,-16,28,32,3);ctx.fill();
+      ctx.fillStyle='#00f5ff66';ctx.shadowColor='#00f5ff';ctx.shadowBlur=6;
+      ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#00f5ff';ctx.fillRect(-2,-2,-8,-18);
+      ctx.shadowBlur=0;ctx.restore();
+      ctx.save();ctx.translate(c.width*0.5+30,c.height*0.5);
+      ctx.fillStyle='#111';[[-16,0],[16,0]].forEach(([tx])=>{ctx.fillRect(tx-4,-16,8,32);});
+      ctx.fillStyle='#441100';ctx.beginPath();ctx.roundRect(-14,-14,28,28,3);ctx.fill();
+      ctx.fillStyle='#ff440066';ctx.shadowColor='#ff4400';ctx.shadowBlur=6;
+      ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#ff4400';ctx.fillRect(-2,-2,-7,-16);
+      ctx.shadowBlur=0;ctx.restore();
+      t++; requestAnimationFrame(loop);
+    }
+    loop();
+  };
+
+  setTimeout(() => {
+    drawFightPreview(document.getElementById('fightCanvas'));
+    drawRacePreview(document.getElementById('raceCanvas'));
+    drawNinjaPreview(document.getElementById('ninjaCanvas'));
+    drawSpacePreview(document.getElementById('spaceCanvas'));
+    drawTankPreview(document.getElementById('tankCanvas'));
+  }, 100);
+})();
 </script>
 </body>
 </html>
