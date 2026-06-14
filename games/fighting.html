@@ -2,110 +2,99 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Shadow Karate — Nexus Arena</title>
+<link rel="stylesheet" href="../assets/css/core.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
-  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#050510;color:#e8e8ff;font-family:'Rajdhani',sans-serif;overflow:hidden;user-select:none;}
+  body{background:#050510;color:#e8e8ff;overflow:hidden;user-select:none;}
   canvas{display:block;}
   #gameCanvas{width:100vw;height:100vh;}
 
-  /* UI OVERLAY */
   #ui{position:fixed;inset:0;pointer-events:none;z-index:10;}
 
-  /* HEALTH BARS */
-  .bar-wrap{position:absolute;top:16px;width:38vw;}
+  .bar-wrap{position:absolute;top:16px;width:38vw;max-width:300px;}
   #p1bar{left:4vw;}
   #p2bar{right:4vw;}
-  .bar-name{font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.15em;color:#fff;margin-bottom:4px;}
+  .bar-name{font-family:'Orbitron',monospace;font-size:clamp(0.55rem,1.5vw,0.75rem);letter-spacing:0.15em;color:#fff;margin-bottom:4px;}
   #p2bar .bar-name{text-align:right;}
-  .bar-bg{height:18px;background:#111130;border:1px solid #ffffff22;border-radius:3px;overflow:hidden;position:relative;}
+  .bar-bg{height:clamp(14px,2vw,18px);background:#111130;border:1px solid #ffffff22;border-radius:3px;overflow:hidden;position:relative;}
   .bar-fill{height:100%;transition:width 0.15s;border-radius:2px;position:relative;}
   #p1fill{background:linear-gradient(90deg,#ff6b00,#ffcc00);box-shadow:0 0 12px #ff6b0088;}
   #p2fill{background:linear-gradient(270deg,#00f5ff,#b400ff);box-shadow:0 0 12px #00f5ff88;margin-left:auto;}
-  .bar-shield{height:6px;margin-top:3px;background:#111130;border:1px solid #ffffff11;border-radius:2px;overflow:hidden;}
+  .bar-shield{height:4px;margin-top:2px;background:#111130;border:1px solid #ffffff11;border-radius:2px;overflow:hidden;}
   .shield-fill{height:100%;background:linear-gradient(90deg,#00f5ff88,#b400ff88);transition:width 0.15s;}
 
-  /* POWER GAUGE */
-  #powerWrap{position:absolute;top:70px;left:50%;transform:translateX(-50%);}
-  .power-label{font-family:'Orbitron',monospace;font-size:0.6rem;letter-spacing:0.2em;color:#ffcc00;text-align:center;margin-bottom:4px;}
-  .power-bar{width:200px;height:10px;background:#111130;border:1px solid #ffcc0033;border-radius:10px;overflow:hidden;}
+  #powerWrap{position:absolute;top:clamp(60px,8vw,70px);left:50%;transform:translateX(-50%);}
+  .power-label{font-family:'Orbitron',monospace;font-size:clamp(0.45rem,1.2vw,0.6rem);letter-spacing:0.2em;color:#ffcc00;text-align:center;margin-bottom:4px;}
+  .power-bar{width:clamp(120px,30vw,200px);height:clamp(6px,1.5vw,10px);background:#111130;border:1px solid #ffcc0033;border-radius:10px;overflow:hidden;}
   #powerFill{height:100%;width:0%;background:linear-gradient(90deg,#ff6b00,#ffcc00,#ff6b00);background-size:200%;animation:powerShift 1s infinite linear;border-radius:10px;box-shadow:0 0 10px #ffcc0066;}
   @keyframes powerShift{from{background-position:0%}to{background-position:200%}}
 
-  /* TIMER */
-  #timer{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-weight:900;font-size:2rem;color:#fff;text-shadow:0 0 20px #00f5ff88;letter-spacing:0.05em;}
+  #timer{position:absolute;top:clamp(10px,2vw,14px);left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(1.5rem,5vw,2rem);color:#fff;text-shadow:0 0 20px #00f5ff88;letter-spacing:0.05em;}
 
-  /* ROUND */
-  #roundInfo{position:absolute;top:110px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:0.2em;color:#ffffff66;}
+  #roundInfo{position:absolute;top:clamp(95px,13vw,110px);left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:clamp(0.5rem,1.2vw,0.65rem);letter-spacing:0.2em;color:#ffffff66;}
 
-  /* CONTROLS HINT */
   #controls{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:space-between;padding:0 4vw;}
   .ctrl-side{display:flex;flex-direction:column;gap:4px;}
   .ctrl-row{display:flex;gap:6px;align-items:center;}
-  .key{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 6px;background:#ffffff11;border:1px solid #ffffff33;border-radius:3px;font-family:'Orbitron',monospace;font-size:0.6rem;color:#ffffff88;}
-  .ctrl-desc{font-size:0.7rem;color:#ffffff44;letter-spacing:0.05em;}
+  .key{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 6px;background:#ffffff11;border:1px solid #ffffff33;border-radius:3px;font-family:'Orbitron',monospace;font-size:clamp(0.5rem,1.2vw,0.6rem);color:#ffffff88;}
+  .ctrl-desc{font-size:clamp(0.6rem,1.5vw,0.7rem);color:#ffffff44;letter-spacing:0.05em;}
 
-  /* FLASH */
   #flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;transition:opacity 0.05s;}
 
-  /* ANNOUNCE */
   #announce{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
   .ann-text{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(2rem,6vw,5rem);letter-spacing:0.05em;opacity:0;transform:scale(0.5);transition:all 0.2s;}
-  .ann-sub{font-family:'Rajdhani',sans-serif;font-size:1rem;letter-spacing:0.2em;color:#ffffff88;margin-top:0.5rem;opacity:0;}
+  .ann-sub{font-size:clamp(0.8rem,2vw,1rem);letter-spacing:0.2em;color:#ffffff88;margin-top:0.5rem;opacity:0;}
 
-  /* COMBO */
-  #combo{position:absolute;top:120px;right:4vw;text-align:right;pointer-events:none;}
-  #comboCount{font-family:'Orbitron',monospace;font-weight:900;font-size:3rem;color:#ffcc00;text-shadow:0 0 20px #ffcc0088;opacity:0;transition:opacity 0.3s;}
-  #comboLabel{font-size:0.75rem;letter-spacing:0.2em;color:#ffcc0088;}
+  #combo{position:absolute;top:clamp(90px,15vw,120px);right:4vw;text-align:right;pointer-events:none;}
+  #comboCount{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(2rem,5vw,3rem);color:#ffcc00;text-shadow:0 0 20px #ffcc0088;opacity:0;transition:opacity 0.3s;}
+  #comboLabel{font-size:clamp(0.6rem,1.5vw,0.75rem);letter-spacing:0.2em;color:#ffcc0088;}
 
-  /* MAGIC SELECT */
-  #magicBar{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);display:flex;gap:8px;}
-  .magic-slot{width:50px;height:50px;border:2px solid #ffffff22;border-radius:6px;background:#0a0a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:all 0.2s;pointer-events:all;}
+  #magicBar{position:absolute;bottom:clamp(50px,8vw,60px);left:50%;transform:translateX(-50%);display:flex;gap:clamp(4px,1vw,8px);}
+  .magic-slot{width:clamp(38px,9vw,50px);height:clamp(38px,9vw,50px);border:2px solid #ffffff22;border-radius:6px;background:#0a0a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;transition:all 0.2s;pointer-events:all;}
   .magic-slot.active{border-color:var(--mc);box-shadow:0 0 12px var(--mc)66;}
-  .magic-slot .micon{font-size:1.4rem;}
-  .magic-slot .mname{font-size:0.45rem;letter-spacing:0.1em;color:#ffffff66;font-family:'Orbitron',monospace;}
-  .magic-slot .mcost{font-size:0.55rem;color:#ffcc0088;}
+  .magic-slot .micon{font-size:clamp(1rem,3vw,1.4rem);}
+  .magic-slot .mname{font-size:clamp(0.35rem,1vw,0.45rem);letter-spacing:0.1em;color:#ffffff66;font-family:'Orbitron',monospace;}
+  .magic-slot .mcost{font-size:clamp(0.45rem,1vw,0.55rem);color:#ffcc0088;}
+
+  @media (max-width: 600px) {
+    #controls { display: none; }
+    .magic-slot .mname, .magic-slot .mcost { display: none; }
+    .magic-slot { width: 44px; height: 44px; }
+    .magic-slot .micon { font-size: 1.2rem; }
+  }
 </style>
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
+<a href="../index.html" class="back-btn">Back</a>
 
 <div id="ui">
-  <!-- P1 Bar -->
   <div class="bar-wrap" id="p1bar">
-    <div class="bar-name">⚡ KAI STORM</div>
+    <div class="bar-name">KAI STORM</div>
     <div class="bar-bg"><div class="bar-fill" id="p1fill" style="width:100%"></div></div>
     <div class="bar-shield"><div class="shield-fill" id="p1shield" style="width:100%"></div></div>
   </div>
-  <!-- Timer -->
   <div id="timer">99</div>
-  <!-- P2 Bar -->
   <div class="bar-wrap" id="p2bar" style="display:flex;flex-direction:column;align-items:flex-end;">
-    <div class="bar-name">🔥 SHADOW DRAGON</div>
+    <div class="bar-name">SHADOW DRAGON</div>
     <div class="bar-bg" style="width:100%;"><div class="bar-fill" id="p2fill" style="width:100%"></div></div>
     <div class="bar-shield" style="width:100%;"><div class="shield-fill" id="p2shield" style="width:100%;margin-left:auto;"></div></div>
   </div>
-  <!-- Power -->
   <div id="powerWrap">
-    <div class="power-label">⚡ POWER GAUGE</div>
+    <div class="power-label">POWER GAUGE</div>
     <div class="power-bar"><div id="powerFill"></div></div>
   </div>
   <div id="roundInfo">ROUND 1 — BEST OF 3</div>
-  <!-- Announce -->
   <div id="announce">
     <div class="ann-text" id="annText"></div>
     <div class="ann-sub" id="annSub"></div>
   </div>
-  <!-- Combo -->
   <div id="combo">
     <div id="comboCount"></div>
     <div id="comboLabel" style="display:none;">HIT COMBO!</div>
   </div>
-  <!-- Flash -->
   <div id="flash"></div>
-  <!-- Controls -->
   <div id="controls">
     <div class="ctrl-side">
       <div class="ctrl-row"><span class="key">A</span><span class="key">D</span><span class="ctrl-desc">Move</span></div>
@@ -114,37 +103,35 @@
       <div class="ctrl-row"><span class="key">K</span><span class="ctrl-desc">Kick</span></div>
       <div class="ctrl-row"><span class="key">L</span><span class="ctrl-desc">Block</span></div>
       <div class="ctrl-row"><span class="key">U</span><span class="ctrl-desc">Magic</span></div>
-      <div class="ctrl-row"><span class="key">I</span><span class="ctrl-desc">ULTIMATE</span></div>
+      <div class="ctrl-row"><span class="key">I</span><span class="ctrl-desc">Ultimate</span></div>
     </div>
     <div class="ctrl-side" style="align-items:flex-end;">
       <div class="ctrl-row"><span class="ctrl-desc">Auto AI</span><span class="key">CPU</span></div>
     </div>
   </div>
-  <!-- Magic Bar -->
   <div id="magicBar">
-    <div class="magic-slot active" style="--mc:#ff6b00" onclick="setMagic(0)"><div class="micon">🔥</div><div class="mname">FIRE</div><div class="mcost">20⚡</div></div>
-    <div class="magic-slot" style="--mc:#00f5ff" onclick="setMagic(1)"><div class="micon">❄️</div><div class="mname">ICE</div><div class="mcost">20⚡</div></div>
-    <div class="magic-slot" style="--mc:#00ff88" onclick="setMagic(2)"><div class="micon">⚡</div><div class="mname">BOLT</div><div class="mcost">20⚡</div></div>
-    <div class="magic-slot" style="--mc:#b400ff" onclick="setMagic(3)"><div class="micon">💜</div><div class="mname">VOID</div><div class="mcost">30⚡</div></div>
-    <div class="magic-slot" style="--mc:#ffcc00" onclick="setMagic(4)"><div class="micon">☀️</div><div class="mname">SOLAR</div><div class="mcost">50⚡</div></div>
+    <div class="magic-slot active" style="--mc:#ff6b00" onclick="setMagic(0)"><div class="micon">🔥</div><div class="mname">FIRE</div><div class="mcost">20</div></div>
+    <div class="magic-slot" style="--mc:#00f5ff" onclick="setMagic(1)"><div class="micon">❄️</div><div class="mname">ICE</div><div class="mcost">20</div></div>
+    <div class="magic-slot" style="--mc:#00ff88" onclick="setMagic(2)"><div class="micon">⚡</div><div class="mname">BOLT</div><div class="mcost">20</div></div>
+    <div class="magic-slot" style="--mc:#b400ff" onclick="setMagic(3)"><div class="micon">💜</div><div class="mname">VOID</div><div class="mcost">30</div></div>
+    <div class="magic-slot" style="--mc:#ffcc00" onclick="setMagic(4)"><div class="micon">☀️</div><div class="mname">SOLAR</div><div class="mcost">50</div></div>
   </div>
 </div>
 
+<script src="../assets/js/shared.js"></script>
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 resize(); window.addEventListener('resize',resize);
 
-// ── GAME STATE ──
 const GS = {
   running: false, paused: false,
   round: 1, p1wins: 0, p2wins: 0,
   time: 99, timeInterval: null,
-  phase: 'intro' // intro | fight | ko | win
+  phase: 'intro'
 };
 
-// ── MAGIC TYPES ──
 const MAGICS = [
   {name:'FIRE',  color:'#ff6b00', icon:'🔥', cost:20, dmg:18, speed:7,  radius:12},
   {name:'ICE',   color:'#00f5ff', icon:'❄️', cost:20, dmg:12, speed:5,  radius:14, slow:true},
@@ -158,7 +145,6 @@ function setMagic(i){
   document.querySelectorAll('.magic-slot').forEach((el,j)=>el.classList.toggle('active',j===i));
 }
 
-// ── PARTICLES ──
 const particles = [];
 function spawnParticles(x,y,color,n=12,spd=4){
   for(let i=0;i<n;i++){
@@ -173,31 +159,28 @@ function spawnMagicRing(x,y,color){
   }
 }
 
-// ── PROJECTILES ──
 const projectiles = [];
 function fireProjectile(owner,x,y,dir,magic){
   const m=MAGICS[magic];
   projectiles.push({owner,x,y,dir,vx:dir*m.speed,vy:0,color:m.color,radius:m.radius,dmg:m.dmg,magic,life:1,trail:[]});
 }
 
-// ── HIT NUMBERS ──
 const hitNums = [];
 function spawnHitNum(x,y,val,color){
   hitNums.push({x,y,vy:-2,val,color,life:1,size:24+val});
 }
 
-// ── FIGHTER CLASS ──
 class Fighter {
   constructor(x,side,color,aura,name){
     this.x=x; this.y=0; this.w=50; this.h=100;
     this.vy=0; this.onGround=false;
-    this.side=side; // 1=P1, -1=P2
-    this.facing=side; // which dir they face
+    this.side=side;
+    this.facing=side;
     this.color=color; this.aura=aura; this.name=name;
     this.hp=100; this.maxHp=100;
     this.shield=100; this.maxShield=100;
     this.power=0; this.maxPower=100;
-    this.state='idle'; // idle punch kick jump block hurt magic ultimate
+    this.state='idle';
     this.stateTimer=0;
     this.blocking=false;
     this.combo=0; this.comboTimer=0;
@@ -218,7 +201,6 @@ function initFighters(){
   [p1,p2].forEach(f=>{f.groundY=ground; f.y=0;});
 }
 
-// ── KEYS ──
 const keys = {};
 window.addEventListener('keydown',e=>{keys[e.key.toUpperCase()]=true; handleAction(e.key.toUpperCase());});
 window.addEventListener('keyup',  e=>{keys[e.key.toUpperCase()]=false;});
@@ -229,6 +211,51 @@ function handleAction(k){
   if(k==='K') doAttack(p1,'kick');
   if(k==='U') doMagic(p1);
   if(k==='I') doUltimate(p1);
+}
+
+// Touch controls
+let touchKeys = {};
+function initTouch() {
+  if (!('ontouchstart' in window)) return;
+  const ui = document.getElementById('ui');
+  const defs = [
+    { id: 't-left', x: '4vw', y: 'auto', bottom: '16vw', icon: '◀', key: 'A' },
+    { id: 't-right', x: '16vw', y: 'auto', bottom: '16vw', icon: '▶', key: 'D' },
+    { id: 't-jump', x: '4vw', y: 'auto', bottom: '6vw', icon: '▲', key: 'W' },
+    { id: 't-punch', x: 'auto', y: 'auto', right: '16vw', bottom: '16vw', icon: '👊', key: 'J' },
+    { id: 't-kick', x: 'auto', y: 'auto', right: '4vw', bottom: '16vw', icon: '🦶', key: 'K' },
+    { id: 't-block', x: 'auto', y: 'auto', right: '16vw', bottom: '6vw', icon: '🛡', key: 'L' },
+    { id: 't-magic', x: 'auto', y: 'auto', right: '4vw', bottom: '6vw', icon: '✨', key: 'U' },
+  ];
+  defs.forEach(d => {
+    const el = document.createElement('div');
+    el.id = d.id;
+    el.style.cssText = `position:absolute;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:1.2rem;display:flex;align-items:center;justify-content:center;pointer-events:all;-webkit-user-select:none;user-select:none;left:${d.x||'auto'};right:${d.right||'auto'};bottom:${d.bottom};top:${d.y||'auto'};`;
+    el.dataset.key = d.key;
+    ui.appendChild(el);
+  });
+  ui.addEventListener('touchstart', e => {
+    const t = e.changedTouches[0];
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    if (el && el.dataset.key) {
+      e.preventDefault();
+      touchKeys[el.dataset.key] = true;
+      el.style.background = 'rgba(255,255,255,0.2)';
+      handleAction(el.dataset.key);
+    }
+  }, { passive: false });
+  ui.addEventListener('touchend', e => {
+    const t = e.changedTouches[0];
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    if (el && el.dataset.key) {
+      touchKeys[el.dataset.key] = false;
+      el.style.background = 'rgba(255,255,255,0.08)';
+    }
+  });
+  ui.addEventListener('touchcancel', () => {
+    touchKeys = {};
+    ui.querySelectorAll('[data-key]').forEach(el => el.style.background = 'rgba(255,255,255,0.08)');
+  });
 }
 
 function doAttack(f,type){
@@ -250,7 +277,7 @@ function doMagic(f){
   f.state='magic'; f.stateTimer=25;
   fireProjectile(f, f.x+(f.facing>0?40:-40), f.groundY-70, f.facing, selectedMagic);
   spawnMagicRing(f.x, f.groundY-70, m.color);
-  flash(m.color,0.15);
+  flash(document.getElementById('flash'),m.color,0.15);
   updatePowerUI();
 }
 
@@ -262,8 +289,8 @@ function doUltimate(f){
   dealDamage(target,f,50,'ultimate');
   spawnMagicRing(target.x,target.groundY-50,'#ffcc00');
   spawnParticles(target.x,target.groundY-50,'#ffcc00',30,8);
-  flash('#ffcc00',0.5);
-  showAnnounce('ULTIMATE!','','#ffcc00',1000);
+  flash(document.getElementById('flash'),'#ffcc00',0.5);
+  showAnnounce('ULTIMATE!','','#ffcc00',1000,document.getElementById('annText'),document.getElementById('annSub'));
   updatePowerUI();
 }
 
@@ -283,35 +310,32 @@ function dealDamage(target, attacker, dmg, type){
   target.hitCooldown=12;
   spawnParticles(target.x,target.groundY-60,attacker.aura,14,5);
   spawnHitNum(target.x,target.groundY-80,Math.round(dmg),attacker.aura);
-
-  // combo
   if(attacker===p1){
     attacker.combo++;attacker.comboTimer=90;
     if(attacker.combo>=2) showCombo(attacker.combo);
   }
   updateBars(); updatePowerUI();
-  flash(attacker.aura,0.1);
+  flash(document.getElementById('flash'),attacker.aura,0.1);
   if(target.hp<=0) triggerKO(target===p1?'P2':'P1');
 }
 
 function triggerKO(winner){
   GS.phase='ko';
-  if(winner==='P1'){GS.p1wins++;showAnnounce('K.O.!',`KAI STORM WINS ROUND ${GS.round}`,'#ff6b00',2000);}
-  else{GS.p2wins++;showAnnounce('K.O.!',`SHADOW DRAGON WINS ROUND ${GS.round}`,'#00f5ff',2000);}
+  if(winner==='P1'){GS.p1wins++;showAnnounce('K.O.!',`KAI STORM WINS ROUND ${GS.round}`,'#ff6b00',2000,document.getElementById('annText'),document.getElementById('annSub'));}
+  else{GS.p2wins++;showAnnounce('K.O.!',`SHADOW DRAGON WINS ROUND ${GS.round}`,'#00f5ff',2000,document.getElementById('annText'),document.getElementById('annSub'));}
   setTimeout(()=>{
     if(GS.p1wins>=2||GS.p2wins>=2){
       const w=GS.p1wins>=2?'KAI STORM':'SHADOW DRAGON';
-      showAnnounce('VICTORY!',`${w} IS THE CHAMPION!`,'#ffcc00',9999);
+      showAnnounce('VICTORY!',`${w} IS THE CHAMPION!`,'#ffcc00',9999,document.getElementById('annText'),document.getElementById('annSub'));
       GS.phase='win';
     } else {
       GS.round++;
-      showAnnounce(`ROUND ${GS.round}`,'FIGHT!','#fff',2000);
+      showAnnounce(`ROUND ${GS.round}`,'FIGHT!','#fff',2000,document.getElementById('annText'),document.getElementById('annSub'));
       setTimeout(()=>{initFighters();GS.phase='fight';updateBars();updatePowerUI();},2100);
     }
   },2100);
 }
 
-// ── TIMER ──
 function startTimer(){
   GS.time=99;
   GS.timeInterval=setInterval(()=>{
@@ -319,40 +343,30 @@ function startTimer(){
     GS.time--;
     document.getElementById('timer').textContent=GS.time;
     if(GS.time<=0){
-      // whoever has more HP wins
       if(p1.hp>p2.hp) triggerKO('P1'); else triggerKO('P2');
     }
   },1000);
 }
 
-// ── AI ──
 function updateAI(){
   if(GS.phase!=='fight') return;
   const ai=p2, player=p1;
   const dist=Math.abs(ai.x-player.x);
   const dt=Math.random();
-  // move toward player
   if(dist>80){ai.x+=(player.x<ai.x?-1:1)*2.5*(ai.slow>0?0.5:1);}
-  // attack
   if(dist<90&&dt<0.04) doAttack(ai,'punch');
   if(dist<90&&dt<0.02) doAttack(ai,'kick');
-  // magic
   if(dist>120&&ai.power>=20&&dt<0.015){
     const oldFacing=ai.facing; ai.facing=player.x>ai.x?1:-1;
     fireProjectile(ai,ai.x+(ai.facing>0?40:-40),ai.groundY-70,ai.facing,Math.floor(Math.random()*3));
     ai.power-=20; updatePowerUI();
   }
-  // block
   ai.blocking=dt<0.008;
-  // jump
   if(ai.onGround&&dt<0.005){ai.vy=-15;}
-  // face player
   ai.facing=player.x>ai.x?1:-1;
-  // regain power
   ai.power=Math.min(ai.maxPower,ai.power+0.08);
 }
 
-// ── PHYSICS ──
 function updatePhysics(){
   [p1,p2].forEach(f=>{
     if(!f) return;
@@ -365,28 +379,24 @@ function updatePhysics(){
     if(f.slow>0) f.slow--;
     if(f.comboTimer>0){f.comboTimer--;if(f.comboTimer<=0){f.combo=0;hideCombo();}}
     f.animFrame++;
-    // shield regen
     if(f.shield<f.maxShield) f.shield=Math.min(f.maxShield,f.shield+0.1);
-    // power regen
     if(f===p1) f.power=Math.min(f.maxPower,f.power+0.05);
   });
-  // player move
   if(GS.phase==='fight'){
+    const k = (k)=>keys[k] || touchKeys[k];
     if(p1.state!=='hurt'){
-      if(keys['A']){p1.x-=3*(p1.slow>0?0.5:1);p1.facing=-1;p1.state='walk';}
-      else if(keys['D']){p1.x+=3*(p1.slow>0?0.5:1);p1.facing=1;p1.state='walk';}
+      if(k('A')){p1.x-=3*(p1.slow>0?0.5:1);p1.facing=-1;p1.state='walk';}
+      else if(k('D')){p1.x+=3*(p1.slow>0?0.5:1);p1.facing=1;p1.state='walk';}
       else if(p1.state==='walk') p1.state='idle';
     }
-    if(keys['W']&&p1.onGround){p1.vy=-15;p1.onGround=false;}
-    p1.blocking=!!keys['L'];
+    if(k('W')&&p1.onGround){p1.vy=-15;p1.onGround=false;}
+    p1.blocking=!!k('L');
   }
-  // clamp
   const margin=40;
   if(p1){p1.x=Math.max(margin,Math.min(canvas.width-margin,p1.x));}
   if(p2){p2.x=Math.max(margin,Math.min(canvas.width-margin,p2.x));}
 }
 
-// ── PROJECTILES ──
 function updateProjectiles(){
   for(let i=projectiles.length-1;i>=0;i--){
     const p=projectiles[i];
@@ -394,7 +404,6 @@ function updateProjectiles(){
     if(p.trail.length>12) p.trail.shift();
     p.x+=p.vx; p.y+=p.vy;
     p.life-=0.015;
-    // hit detection
     const target=p.owner===p1?p2:p1;
     if(target&&Math.hypot(p.x-target.x,p.y-(target.groundY-50))<p.radius+25){
       const m=MAGICS[p.magic];
@@ -407,14 +416,10 @@ function updateProjectiles(){
   }
 }
 
-// ── DRAWING ──
 function drawBackground(){
-  // sky
   const sky=ctx.createLinearGradient(0,0,0,canvas.height);
   sky.addColorStop(0,'#020210'); sky.addColorStop(0.6,'#0a0520'); sky.addColorStop(1,'#050510');
   ctx.fillStyle=sky; ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // grid floor
   const groundY=canvas.height*0.78;
   ctx.save();
   ctx.strokeStyle='#ffffff08'; ctx.lineWidth=1;
@@ -431,15 +436,11 @@ function drawBackground(){
     ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
   }
   ctx.globalAlpha=1; ctx.restore();
-
-  // floor line
   const flg=ctx.createLinearGradient(0,0,canvas.width,0);
   flg.addColorStop(0,'transparent'); flg.addColorStop(0.3,'#ff6b00'); flg.addColorStop(0.5,'#ff6b0088'); flg.addColorStop(0.7,'#00f5ff'); flg.addColorStop(1,'transparent');
   ctx.strokeStyle=flg; ctx.lineWidth=2; ctx.shadowColor='#ff6b00'; ctx.shadowBlur=10;
   ctx.beginPath(); ctx.moveTo(0,groundY); ctx.lineTo(canvas.width,groundY); ctx.stroke();
   ctx.shadowBlur=0;
-
-  // distant dojo pillars
   const pillarCols=['#ff6b0022','#b400ff22','#00f5ff22'];
   [0.1,0.3,0.5,0.7,0.9].forEach((px,i)=>{
     ctx.fillStyle=pillarCols[i%3];
@@ -447,17 +448,15 @@ function drawBackground(){
     ctx.fillStyle=pillarCols[i%3]+'88';
     ctx.fillRect(px*canvas.width-18,canvas.height*0.28,36,8);
   });
-
-  // magic runes on ground
   ctx.save(); ctx.globalAlpha=0.07;
   ctx.strokeStyle='#b400ff'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.arc(canvas.width/2, groundY, 200, 0, Math.PI*2); ctx.stroke();
-  ctx.beginPath(); ctx.arc(canvas.width/2, groundY, 160, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(canvas.width/2, groundY, Math.min(canvas.width,canvas.height)*0.2, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(canvas.width/2, groundY, Math.min(canvas.width,canvas.height)*0.16, 0, Math.PI*2); ctx.stroke();
   for(let i=0;i<6;i++){
     const ang=(i/6)*Math.PI*2;
     ctx.beginPath();
-    ctx.moveTo(canvas.width/2+Math.cos(ang)*160, groundY+Math.sin(ang)*20);
-    ctx.lineTo(canvas.width/2+Math.cos(ang+Math.PI/6)*200, groundY+Math.sin(ang+Math.PI/6)*25);
+    ctx.moveTo(canvas.width/2+Math.cos(ang)*Math.min(canvas.width,canvas.height)*0.16, groundY+Math.sin(ang)*20);
+    ctx.lineTo(canvas.width/2+Math.cos(ang+Math.PI/6)*Math.min(canvas.width,canvas.height)*0.2, groundY+Math.sin(ang+Math.PI/6)*25);
     ctx.stroke();
   }
   ctx.globalAlpha=1; ctx.restore();
@@ -467,100 +466,67 @@ function drawFighter(f){
   if(!f) return;
   const x=f.x, y=f.groundY+f.y, s=f.state, fr=f.animFrame;
   const facing=f.facing;
-
   ctx.save(); ctx.translate(x,y);
-
-  // aura
   const hurt = s==='hurt';
   const aurag=ctx.createRadialGradient(0,-50,10,0,-50,80);
   aurag.addColorStop(0,hurt?'#ff000066':f.aura+'44');
   aurag.addColorStop(1,'transparent');
   ctx.fillStyle=aurag; ctx.beginPath(); ctx.arc(0,-50,80,0,Math.PI*2); ctx.fill();
-
-  // shadow
   ctx.fillStyle='rgba(0,0,0,0.4)';
   ctx.beginPath(); ctx.ellipse(0,2,30,8,0,0,Math.PI*2); ctx.fill();
-
   ctx.scale(facing,1);
-
-  // BODY DRAWING
-  // legs
   const kickLeg = (s==='kick') ? Math.min(fr%20*3,50) : 0;
   const walkSwing = (s==='walk') ? Math.sin(fr*0.25)*15 : 0;
-
-  // back leg
   ctx.save(); ctx.rotate((-walkSwing-5)*Math.PI/180);
   ctx.fillStyle=f.color+'cc';
   ctx.beginPath(); ctx.roundRect(-6,-15,10,50,4); ctx.fill();
   ctx.restore();
-  // front leg
   ctx.save(); ctx.rotate((walkSwing+kickLeg)*Math.PI/180);
   ctx.fillStyle=f.color;
   ctx.beginPath(); ctx.roundRect(-4,-18,10,50,4); ctx.fill();
-  // foot
   ctx.fillStyle='#222'; ctx.beginPath(); ctx.roundRect(2,28,16,8,2); ctx.fill();
   ctx.restore();
-
-  // torso
   const punchLean = (s==='punch') ? 12 : 0;
   ctx.save(); ctx.rotate(punchLean*Math.PI/180);
   ctx.fillStyle=f.color+'dd';
   ctx.beginPath(); ctx.roundRect(-15,-65,30,50,5); ctx.fill();
-  // belt
   ctx.fillStyle= f.side===1?'#ff6b00':'#00f5ff';
   ctx.fillRect(-15,-25,30,6);
-  // gi stripes
   ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(-15,-65); ctx.lineTo(0,-25); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(15,-65); ctx.lineTo(0,-25); ctx.stroke();
-
-  // punch arm
   const punchExt = s==='punch'?35+(Math.sin(fr*0.4)*5):10;
   ctx.fillStyle=f.color;
   ctx.beginPath(); ctx.roundRect(8,-62,12,36,4); ctx.fill();
   ctx.beginPath(); ctx.roundRect(8+punchExt*0.4,-58,10,10,4); ctx.fill();
-  // fist
   ctx.fillStyle='#ffcc9966';
   ctx.beginPath(); ctx.arc(14+punchExt*0.5,-56,8,0,Math.PI*2); ctx.fill();
   if(s==='punch'){ctx.shadowColor=f.aura;ctx.shadowBlur=20;ctx.fill();ctx.shadowBlur=0;}
-
-  // back arm
   ctx.fillStyle=f.color+'88';
   ctx.beginPath(); ctx.roundRect(-20,-60,10,30,3); ctx.fill();
   ctx.restore();
-
-  // head
   ctx.fillStyle='#ffcc99';
   ctx.beginPath(); ctx.arc(0,-80,17,0,Math.PI*2); ctx.fill();
-  // hair
   ctx.fillStyle= f.side===1?'#333':'#000';
   ctx.beginPath(); ctx.arc(0,-88,12,Math.PI,0); ctx.fill();
-  // eyes
   ctx.fillStyle=f.aura;
   ctx.beginPath(); ctx.arc(5,-80,3,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(-5,-80,3,0,Math.PI*2); ctx.fill();
   if(s==='ultimate'||s==='magic'){
     ctx.shadowColor=f.aura; ctx.shadowBlur=15; ctx.fill(); ctx.shadowBlur=0;
   }
-
-  // headband
   ctx.fillStyle=f.side===1?'#ff3300':'#0088ff';
   ctx.fillRect(-14,-72,28,5);
-  // headband tails
   ctx.beginPath(); ctx.moveTo(14,-72); ctx.lineTo(22,-78); ctx.lineTo(20,-65); ctx.fill();
-
-  // BLOCK EFFECT
   if(f.blocking){
     ctx.strokeStyle=f.aura+'88'; ctx.lineWidth=3;
     ctx.beginPath(); ctx.arc(0,-50,50,0,Math.PI*2); ctx.stroke();
   }
-
   ctx.restore();
 }
 
 function drawProjectiles(){
   projectiles.forEach(p=>{
-    // trail
     p.trail.forEach((pt,i)=>{
       const a=(i/p.trail.length)*0.5;
       ctx.globalAlpha=a;
@@ -568,7 +534,6 @@ function drawProjectiles(){
       ctx.beginPath(); ctx.arc(pt.x,pt.y,p.radius*(i/p.trail.length),0,Math.PI*2); ctx.fill();
     });
     ctx.globalAlpha=1;
-    // orb
     ctx.shadowColor=p.color; ctx.shadowBlur=20;
     ctx.fillStyle=p.color;
     ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fill();
@@ -601,7 +566,6 @@ function drawHitNums(){
   ctx.globalAlpha=1;
 }
 
-// ── UPDATE PARTICLES ──
 function updateParticles(){
   for(let i=particles.length-1;i>=0;i--){
     const p=particles[i];
@@ -615,7 +579,6 @@ function updateParticles(){
   }
 }
 
-// ── UI HELPERS ──
 function updateBars(){
   if(!p1||!p2) return;
   document.getElementById('p1fill').style.width=p1.hp+'%';
@@ -629,21 +592,6 @@ function updatePowerUI(){
   if(!p1) return;
   document.getElementById('powerFill').style.width=p1.power+'%';
 }
-let flashTimer=null;
-function flash(color,intensity=0.3){
-  const el=document.getElementById('flash');
-  el.style.background=color; el.style.opacity=intensity;
-  clearTimeout(flashTimer);
-  flashTimer=setTimeout(()=>{el.style.opacity=0;},80);
-}
-function showAnnounce(text,sub,color,dur){
-  const at=document.getElementById('annText');
-  const as=document.getElementById('annSub');
-  at.textContent=text; at.style.color=color; at.style.textShadow=`0 0 40px ${color}`;
-  at.style.opacity=1; at.style.transform='scale(1)';
-  as.textContent=sub; as.style.opacity=sub?1:0;
-  if(dur<9999) setTimeout(()=>{at.style.opacity=0;at.style.transform='scale(0.5)';as.style.opacity=0;},dur);
-}
 function showCombo(n){
   const cc=document.getElementById('comboCount');
   const cl=document.getElementById('comboLabel');
@@ -656,18 +604,16 @@ function hideCombo(){
   document.getElementById('comboLabel').style.display='none';
 }
 
-// ── INTRO ──
 function startGame(){
   initFighters();
   GS.phase='intro';
-  showAnnounce('ROUND 1','','#fff',0);
+  showAnnounce('ROUND 1','','#fff',0,document.getElementById('annText'),document.getElementById('annSub'));
   setTimeout(()=>{
-    showAnnounce('FIGHT!','KAI vs SHADOW DRAGON','#ff6b00',1500);
+    showAnnounce('FIGHT!','KAI vs SHADOW DRAGON','#ff6b00',1500,document.getElementById('annText'),document.getElementById('annSub'));
     setTimeout(()=>{GS.phase='fight'; startTimer();},1600);
   },1000);
 }
 
-// ── MAIN LOOP ──
 let lastTime=0;
 function loop(ts){
   const dt=ts-lastTime; lastTime=ts;
@@ -687,8 +633,7 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 
-// ── INIT ──
-showAnnounce('SHADOW KARATE','Press any key to begin','#ff6b00',9999);
+showAnnounce('SHADOW KARATE','Press any key to begin','#ff6b00',9999,document.getElementById('annText'),document.getElementById('annSub'));
 window.addEventListener('keydown',()=>{
   if(GS.phase==='intro'&&document.getElementById('annText').textContent==='SHADOW KARATE'){
     document.getElementById('annText').style.opacity=0;
@@ -697,6 +642,7 @@ window.addEventListener('keydown',()=>{
   }
 },{once:true});
 requestAnimationFrame(loop);
+initTouch();
 </script>
 </body>
 </html>
