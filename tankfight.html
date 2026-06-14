@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tank Battalion — Nexus Arena</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0800;overflow:hidden;font-family:'Rajdhani',sans-serif;color:#e8e8ff;}
+canvas{display:block;}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10;}
+#topleft{position:absolute;top:14px;left:14px;}
+.brow{display:flex;align-items:center;gap:.5rem;margin-bottom:5px;}
+.blbl{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.15em;color:#ffffff44;width:28px;}
+.bbg{width:160px;height:8px;background:#111;border-radius:4px;overflow:hidden;}
+.bfill{height:100%;border-radius:4px;transition:width .15s;}
+#hpF{background:linear-gradient(90deg,#ff3300,#ff6b00);box-shadow:0 0 8px #ff330066;}
+#amF{background:linear-gradient(90deg,#ffcc00,#ff6b00);box-shadow:0 0 8px #ffcc0066;}
+#shF{background:linear-gradient(90deg,#00f5ff,#0088ff);box-shadow:0 0 8px #00f5ff66;}
+#topright{position:absolute;top:14px;right:14px;text-align:right;}
+.tval{font-family:'Orbitron',monospace;font-weight:900;font-size:1.1rem;}
+#killsV{color:#ffcc00;text-shadow:0 0 12px #ffcc0088;}
+#waveV{color:#00f5ff;}
+#scoreV{color:#ff6b00;}
+#ctrl{position:absolute;bottom:12px;right:14px;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.08em;color:#ffffff33;line-height:1.8;}
+#ann{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+#anT{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(2rem,5vw,4rem);opacity:0;transition:all .25s;}
+#anS{font-size:.9rem;letter-spacing:.2em;color:#ffffff77;margin-top:.4rem;opacity:0;}
+#flash{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .06s;}
+#minimap{position:absolute;bottom:20px;left:20px;width:150px;height:100px;background:#0a0800bb;border:1px solid #ffffff22;border-radius:3px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <div id="topleft">
+    <div class="brow"><span class="blbl">HP</span><div class="bbg"><div class="bfill" id="hpF" style="width:100%"></div></div></div>
+    <div class="brow"><span class="blbl">AM</span><div class="bbg"><div class="bfill" id="amF" style="width:100%"></div></div></div>
+    <div class="brow"><span class="blbl">SH</span><div class="bbg"><div class="bfill" id="shF" style="width:100%"></div></div></div>
+  </div>
+  <div id="topright">
+    <div style="font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.15em;color:#ffffff44">KILLS</div>
+    <div class="tval" id="killsV">0</div>
+    <div style="font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.15em;color:#ffffff44;margin-top:6px">WAVE</div>
+    <div class="tval" id="waveV">1</div>
+    <div style="font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.15em;color:#ffffff44;margin-top:6px">SCORE</div>
+    <div class="tval" id="scoreV">0</div>
+  </div>
+  <canvas id="minimap" width="150" height="100"></canvas>
+  <div id="ctrl">WASD Move · ARROWS Aim · SPACE Shoot · Z Missile · X Shield</div>
+  <div id="ann"><div id="anT"></div><div id="anS"></div></div>
+  <div id="flash"></div>
+</div>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const mm=document.getElementById('minimap'),mctx=mm.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+
+const WORLD=2000;
+let running=false,score=0,kills=0,wave=1;
+
+const player={x:WORLD/2,y:WORLD*.7,w:40,h:48,hp:100,maxHp:100,shield:100,maxShield:100,ammo:100,maxAmmo:100,angle:0,turretAngle:-Math.PI/2,speed:2.5,shootCool:0,shieldActive:false,shieldTimer:0,iframes:0,missileCount:3};
+const shells=[],missiles=[],enemies=[],particles=[],explosions=[],walls=[];
+let camX=0,camY=0;
+
+const keys={};
+window.addEventListener('keydown',e=>{keys[e.code]=true;if(!running&&(e.code==='Space'||e.code==='Enter'))startGame();if(e.code==='KeyZ')fireMissile();if(e.code==='KeyX')activateShield();});
+window.addEventListener('keyup',e=>{keys[e.code]=false;});
+
+function startGame(){
+  running=true;score=0;kills=0;wave=1;
+  player.x=WORLD/2;player.y=WORLD*.7;player.hp=100;player.shield=100;player.ammo=100;player.angle=0;player.turretAngle=-Math.PI/2;player.iframes=0;player.missileCount=3;
+  shells.length=0;missiles.length=0;enemies.length=0;particles.length=0;explosions.length=0;walls.length=0;
+  buildWalls();spawnWave(1);showAnn('TANK BATTALION','WAVE 1 BEGINS','#ffcc00',2000);
+  document.getElementById('anT').style.opacity=0;
+  setTimeout(()=>{document.getElementById('anT').style.opacity=0;document.getElementById('anS').style.opacity=0;},2100);
+}
+
+function buildWalls(){
+  const wDefs=[[300,300,200,20],[700,200,20,180],[900,600,180,20],[400,700,20,200],[1200,400,220,20],[1600,300,20,160],[1400,700,200,20],[1700,600,20,180],[600,900,180,20],[1000,1000,20,200]];
+  wDefs.forEach(([x,y,w,h])=>walls.push({x,y,w,h}));
+}
+
+function spawnWave(w){
+  wave=w;document.getElementById('waveV').textContent=w;
+  const n=3+w*2;
+  const poses=[[300,200],[1700,200],[300,1800],[1700,1800],[1000,200],[1000,1800],[200,1000],[1800,1000]];
+  for(let i=0;i<n;i++){
+    const p=poses[i%poses.length];
+    const type=w>2&&i<2?'heavy':w>4&&i===0?'sniper':'basic';
+    enemies.push({x:p[0]+Math.random()*100-50,y:p[1]+Math.random()*100-50,w:38,h:46,hp:type==='heavy'?40:type==='sniper'?25:20,maxHp:type==='heavy'?40:type==='sniper'?25:20,angle:Math.random()*Math.PI*2,turretAngle:0,shootCool:0,speed:type==='sniper'?.8:type==='heavy'?.9:1.3,shootRate:type==='sniper'?120:type==='heavy'?80:60,type,alive:true,moveTimer:0,targetAngle:Math.random()*Math.PI*2});
+  }
+}
+
+function fireMissile(){
+  if(player.missileCount<=0) return;
+  player.missileCount--;
+  const tx=player.x+Math.cos(player.turretAngle)*600;
+  const ty=player.y+Math.sin(player.turretAngle)*600;
+  // find nearest enemy to target
+  let best=null,bd=999999;
+  enemies.forEach(e=>{if(!e.alive) return;const d=Math.hypot(e.x-tx,e.y-ty);if(d<bd){bd=d;best=e;}});
+  const tgt=best||{x:tx,y:ty};
+  missiles.push({x:player.x,y:player.y,vx:Math.cos(player.turretAngle)*5,vy:Math.sin(player.turretAngle)*5,target:tgt,life:1,trail:[]});
+  flash('#ff6b0022',.2);
+}
+
+function activateShield(){
+  if(player.ammo<20) return;
+  player.ammo=Math.max(0,player.ammo-20);
+  player.shieldActive=true;player.shieldTimer=180;player.shield=100;
+  document.getElementById('shF').style.width='100%';
+}
+
+function fireShell(from,angle,owner,dmg,spd){
+  shells.push({x:from.x,y:from.y,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,owner,dmg,life:1,trail:[]});
+}
+
+function spawnParticles(x,y,color,n=10,spd=5){
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*spd+1;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,color,size:Math.random()*5+2});}
+}
+
+function spawnExplosion(x,y,r,color){
+  explosions.push({x,y,r,maxR:r,life:1,color});
+  spawnParticles(x,y,'#ff6b00',20,7);spawnParticles(x,y,'#ffcc00',10,5);
+}
+
+function rectOverlap(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
+function wallHit(x,y,r=5){return walls.some(w=>x+r>w.x&&x-r<w.x+w.w&&y+r>w.y&&y-r<w.y+w.h);}
+
+function update(){
+  if(!running) return;
+  movePlayer();updateEnemies();updateShells();updateMissiles();updateExplosions();
+  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.08;p.vx*=.97;p.life-=.02;if(p.life<=0)particles.splice(i,1);}
+  if(player.iframes>0) player.iframes--;
+  if(player.shieldTimer>0){player.shieldTimer--;if(player.shieldTimer<=0)player.shieldActive=false;}
+  // ammo regen
+  player.ammo=Math.min(player.maxAmmo,player.ammo+.05);
+  // shield regen
+  if(!player.shieldActive) player.shield=Math.min(player.maxShield,player.shield+.04);
+  // shoot
+  player.shootCool--;
+  if(keys['Space']&&player.shootCool<=0&&player.ammo>=5){
+    fireShell(player,player.turretAngle,'player',15,10);
+    player.ammo=Math.max(0,player.ammo-5);player.shootCool=18;
+    spawnParticles(player.x+Math.cos(player.turretAngle)*28,player.y+Math.sin(player.turretAngle)*28,'#ffcc00',4,3);
+  }
+  // wave clear
+  if(enemies.every(e=>!e.alive)){wave++;showAnn(`WAVE ${wave}`,'','#ffcc00',1500);setTimeout(()=>spawnWave(wave),1600);}
+  // camera
+  camX=player.x-canvas.width/2;camY=player.y-canvas.height/2;
+  updateHUD();drawMinimap();
+}
+
+function movePlayer(){
+  let mx=0,my=0;
+  if(keys['KeyW']||keys['ArrowUp']) my=-1;
+  if(keys['KeyS']||keys['ArrowDown']) my=1;
+  if(keys['KeyA']||keys['ArrowLeft']) mx=-1;
+  if(keys['KeyD']||keys['ArrowRight']) mx=1;
+  if(mx||my){
+    const mag=Math.hypot(mx,my);mx/=mag;my/=mag;
+    const nx=player.x+mx*player.speed, ny=player.y+my*player.speed;
+    if(!wallHit(nx,player.y,player.w/2)) player.x=Math.max(20,Math.min(WORLD-20,nx));
+    if(!wallHit(player.x,ny,player.h/2)) player.y=Math.max(20,Math.min(WORLD-20,ny));
+    if(mx||my) player.angle=Math.atan2(my,mx);
+  }
+  // turret aim with arrow keys or auto-aim
+  if(keys['ArrowLeft']) player.turretAngle-=.04;
+  if(keys['ArrowRight']) player.turretAngle+=.04;
+  if(keys['ArrowUp']) player.turretAngle-=.04;
+  if(keys['ArrowDown']) player.turretAngle+=.04;
+}
+
+function updateEnemies(){
+  enemies.forEach(e=>{
+    if(!e.alive) return;
+    // AI move toward player
+    e.moveTimer--;
+    if(e.moveTimer<=0){e.moveTimer=60+Math.random()*60;e.targetAngle=Math.atan2(player.y-e.y,player.x-e.x)+(Math.random()-.5)*.8;}
+    e.angle+=(e.targetAngle-e.angle)*.03;
+    const nx=e.x+Math.cos(e.angle)*e.speed,ny=e.y+Math.sin(e.angle)*e.speed;
+    if(!wallHit(nx,e.y,e.w/2)) e.x=Math.max(20,Math.min(WORLD-20,nx));
+    if(!wallHit(e.x,ny,e.h/2)) e.y=Math.max(20,Math.min(WORLD-20,ny));
+    // turret face player
+    e.turretAngle=Math.atan2(player.y-e.y,player.x-e.x);
+    // shoot
+    e.shootCool--;
+    const dist=Math.hypot(e.x-player.x,e.y-player.y);
+    if(e.shootCool<=0&&dist<600){
+      fireShell(e,e.turretAngle,'enemy',e.type==='heavy'?12:e.type==='sniper'?18:8,e.type==='sniper'?12:7);
+      e.shootCool=e.shootRate;
+    }
+  });
+}
+
+function updateShells(){
+  for(let i=shells.length-1;i>=0;i--){
+    const s=shells[i];
+    s.trail.push({x:s.x,y:s.y});if(s.trail.length>8)s.trail.shift();
+    s.x+=s.vx;s.y+=s.vy;s.life-=.012;
+    if(s.life<=0||wallHit(s.x,s.y,3)){spawnParticles(s.x,s.y,'#ffcc0088',4,3);shells.splice(i,1);continue;}
+    // hit target
+    if(s.owner==='player'){
+      enemies.forEach(e=>{
+        if(!e.alive) return;
+        if(Math.abs(s.x-e.x)<e.w/2&&Math.abs(s.y-e.y)<e.h/2){
+          e.hp-=s.dmg;spawnExplosion(s.x,s.y,35,'#ff6b00');shells.splice(i,1);
+          if(e.hp<=0){e.alive=false;kills++;score+=e.type==='heavy'?500:e.type==='sniper'?400:200;document.getElementById('killsV').textContent=kills;document.getElementById('scoreV').textContent=score;spawnExplosion(e.x,e.y,80,'#ff3300');flash('#ff6b0022',.15);}
+        }
+      });
+    } else if(s.owner==='enemy'&&player.iframes===0){
+      if(Math.abs(s.x-player.x)<player.w/2&&Math.abs(s.y-player.y)<player.h/2){
+        if(player.shieldActive||player.shield>0){player.shield=Math.max(0,player.shield-s.dmg*.6);spawnParticles(s.x,s.y,'#00f5ff',6);}
+        else{player.hp=Math.max(0,player.hp-s.dmg);spawnExplosion(s.x,s.y,30,'#ff0000');}
+        shells.splice(i,1);player.iframes=20;flash('#ff000033',.25);
+        if(player.hp<=0){running=false;showAnn('TANK DESTROYED',`SCORE: ${score}`,'#ff0044',9999);}
+      }
+    }
+    if(i>=shells.length) continue; // was removed
+  }
+}
+
+function updateMissiles(){
+  for(let i=missiles.length-1;i>=0;i--){
+    const m=missiles[i];m.trail.push({x:m.x,y:m.y});if(m.trail.length>15)m.trail.shift();
+    // home toward target
+    if(m.target&&m.target.alive!==false){
+      const ang=Math.atan2(m.target.y-m.y,m.target.x-m.x);
+      m.vx+=(Math.cos(ang)*6-m.vx)*.08;m.vy+=(Math.sin(ang)*6-m.vy)*.08;
+    }
+    m.x+=m.vx;m.y+=m.vy;m.life-=.006;
+    if(wallHit(m.x,m.y,8)||m.life<=0){spawnExplosion(m.x,m.y,90,'#ff3300');flash('#ff6b0033',.3);missiles.splice(i,1);
+      // AoE
+      enemies.forEach(e=>{if(!e.alive)return;if(Math.hypot(e.x-m.x,e.y-m.y)<90){e.hp-=40;if(e.hp<=0){e.alive=false;kills++;score+=300;}}});
+      continue;
+    }
+    enemies.forEach(e=>{if(!e.alive)return;if(Math.hypot(m.x-e.x,m.y-e.y)<e.w*.6){spawnExplosion(m.x,m.y,100,'#ff3300');missiles.splice(i,1);e.hp-=50;if(e.hp<=0){e.alive=false;kills++;score+=300;}return;}});
+  }
+}
+
+function updateExplosions(){
+  for(let i=explosions.length-1;i>=0;i--){const e=explosions[i];e.life-=.04;e.r=e.maxR*(1-e.life*.3);if(e.life<=0)explosions.splice(i,1);}
+}
+
+function updateHUD(){
+  document.getElementById('hpF').style.width=player.hp+'%';
+  document.getElementById('amF').style.width=player.ammo+'%';
+  document.getElementById('shF').style.width=player.shield+'%';
+}
+
+function drawMinimap(){
+  mctx.fillStyle='#0a0800';mctx.fillRect(0,0,150,100);
+  const sx=150/WORLD,sy=100/WORLD;
+  walls.forEach(w=>{mctx.fillStyle='#333311';mctx.fillRect(w.x*sx,w.y*sy,w.w*sx,w.h*sy);});
+  enemies.forEach(e=>{if(!e.alive)return;mctx.fillStyle='#ff4400';mctx.beginPath();mctx.arc(e.x*sx,e.y*sy,3,0,Math.PI*2);mctx.fill();});
+  mctx.fillStyle='#ffcc00';mctx.shadowColor='#ffcc00';mctx.shadowBlur=5;
+  mctx.beginPath();mctx.arc(player.x*sx,player.y*sy,4,0,Math.PI*2);mctx.fill();mctx.shadowBlur=0;
+}
+
+function w2s(wx,wy){return {x:wx-camX,y:wy-camY};}
+
+function draw(){
+  // bg
+  ctx.fillStyle='#0e1000';ctx.fillRect(0,0,canvas.width,canvas.height);
+  // terrain grid
+  ctx.strokeStyle='#1a1500';ctx.lineWidth=1;
+  const gs=80,ox=(-camX)%gs,oy=(-camY)%gs;
+  for(let x=ox;x<canvas.width;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+  for(let y=oy;y<canvas.height;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+  // draw walls
+  walls.forEach(w=>{
+    const s=w2s(w.x,w.y);if(s.x+w.w<-5||s.x>canvas.width+5||s.y+w.h<-5||s.y>canvas.height+5) return;
+    ctx.fillStyle='#2a2200';ctx.fillRect(s.x,s.y,w.w,w.h);
+    ctx.strokeStyle='#44330066';ctx.lineWidth=2;ctx.strokeRect(s.x,s.y,w.w,w.h);
+    // top highlight
+    ctx.fillStyle='#3a3000';ctx.fillRect(s.x,s.y,w.w,4);
+  });
+  // explosions
+  explosions.forEach(e=>{const s=w2s(e.x,e.y);const g=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,e.r*e.life);g.addColorStop(0,'#ffcc00cc');g.addColorStop(.4,'#ff6b0088');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(s.x,s.y,e.r*e.life,0,Math.PI*2);ctx.fill();});
+  // shells
+  shells.forEach(sh=>{
+    sh.trail.forEach((t,ti)=>{const st=w2s(t.x,t.y);ctx.globalAlpha=(ti/sh.trail.length)*.6;ctx.fillStyle='#ffcc00';ctx.beginPath();ctx.arc(st.x,st.y,2,0,Math.PI*2);ctx.fill();});
+    ctx.globalAlpha=1;const s=w2s(sh.x,sh.y);ctx.shadowColor='#ffcc00';ctx.shadowBlur=10;ctx.fillStyle=sh.owner==='player'?'#ffcc00':'#ff4400';ctx.beginPath();ctx.arc(s.x,s.y,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  });
+  // missiles
+  missiles.forEach(m=>{
+    m.trail.forEach((t,ti)=>{const st=w2s(t.x,t.y);ctx.globalAlpha=(ti/m.trail.length)*.5;ctx.fillStyle='#ff6b00';ctx.beginPath();ctx.arc(st.x,st.y,3,0,Math.PI*2);ctx.fill();});
+    ctx.globalAlpha=1;const s=w2s(m.x,m.y);ctx.shadowColor='#ff3300';ctx.shadowBlur=15;ctx.fillStyle='#ff6b00';ctx.beginPath();ctx.arc(s.x,s.y,6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  });
+  // enemies
+  enemies.forEach(e=>{if(!e.alive)return;drawTank(e,w2s(e.x,e.y),e.type==='heavy'?'#441100':e.type==='sniper'?'#110044':'#221100','#ff4400',e.turretAngle,e.hp/e.maxHp);});
+  // particles
+  particles.forEach(p=>{const s=w2s(p.x,p.y);ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=5;ctx.beginPath();ctx.arc(s.x,s.y,p.size*p.life,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;});
+  ctx.globalAlpha=1;
+  // player
+  const ps=w2s(player.x,player.y);
+  if(player.shieldActive){ctx.strokeStyle='#00f5ff66';ctx.lineWidth=3;ctx.shadowColor='#00f5ff';ctx.shadowBlur=15;ctx.beginPath();ctx.arc(ps.x,ps.y,36,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;}
+  drawTank({x:player.x,y:player.y,w:player.w,h:player.h},ps,'#003322','#00f5ff',player.turretAngle,player.hp/player.maxHp,true);
+  // missile count
+  ctx.font='bold 13px Orbitron,monospace';ctx.fillStyle='#ff6b0088';ctx.textAlign='left';ctx.fillText(`🚀 x${player.missileCount}`,14,canvas.height-20);
+}
+
+function drawTank(e,s,bodyCol,turretCol,turretAngle,hpPct,isPlayer=false){
+  ctx.save();ctx.translate(s.x,s.y);
+  // shadow
+  ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(0,4,e.w*.6,e.h*.2,0,0,Math.PI*2);ctx.fill();
+  if(isPlayer){ctx.shadowColor='#00f5ff';ctx.shadowBlur=20;}
+  // tracks
+  ctx.fillStyle='#111';
+  [[-e.w*.5,0],[e.w*.5,0]].forEach(([tx])=>{ctx.fillRect(tx-5,-e.h*.45,10,e.h*.9);ctx.strokeStyle='#33333366';ctx.lineWidth=2;for(let i=-e.h*.4;i<e.h*.4;i+=10){ctx.beginPath();ctx.moveTo(tx-5,i);ctx.lineTo(tx+5,i);ctx.stroke();}});
+  // body
+  ctx.fillStyle=bodyCol;ctx.beginPath();ctx.roundRect(-e.w*.38,-e.h*.42,e.w*.76,e.h*.84,4);ctx.fill();
+  // hull detail
+  ctx.fillStyle=isPlayer?'#004433':bodyCol+'88';ctx.beginPath();ctx.roundRect(-e.w*.28,-e.h*.35,e.w*.56,e.h*.7,3);ctx.fill();
+  // turret
+  ctx.shadowBlur=0;
+  ctx.save();ctx.rotate(turretAngle+Math.PI/2);
+  ctx.shadowColor=turretCol;ctx.shadowBlur=8;
+  ctx.fillStyle=turretCol+'66';ctx.beginPath();ctx.arc(0,0,e.w*.3,0,Math.PI*2);ctx.fill();
+  // barrel
+  ctx.fillStyle=turretCol;ctx.fillRect(-3,-3,-e.w*.05,isPlayer?-e.h*.55:-e.h*.5);
+  ctx.shadowBlur=0;ctx.restore();
+  // hp bar
+  ctx.fillStyle='#111';ctx.fillRect(-e.w/2,e.h*.48,e.w,5);
+  ctx.fillStyle=hpPct>.5?'#00ff44':'#ff4400';ctx.fillRect(-e.w/2,e.h*.48,e.w*hpPct,5);
+  ctx.restore();
+}
+
+let flashT=null;
+function flash(c,i){const el=document.getElementById('flash');el.style.background=c;el.style.opacity=i;clearTimeout(flashT);flashT=setTimeout(()=>el.style.opacity=0,90);}
+function showAnn(t,s,c,d){const at=document.getElementById('anT'),as=document.getElementById('anS');at.textContent=t;at.style.color=c;at.style.textShadow=`0 0 25px ${c}`;at.style.opacity=1;at.style.transform='scale(1)';as.textContent=s;as.style.opacity=s?1:0;if(d<9000)setTimeout(()=>{at.style.opacity=0;at.style.transform='scale(.5)';as.style.opacity=0;},d);}
+
+showAnn('TANK BATTALION','Press ENTER to Deploy','#ffcc00',9999);
+
+function loop(){draw();update();requestAnimationFrame(loop);}
+loop();
+</script>
+</body>
+</html>
