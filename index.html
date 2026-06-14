@@ -11,6 +11,9 @@
     --neon-cyan: #00f5ff;
     --neon-orange: #ff6b00;
     --neon-purple: #b400ff;
+    --neon-green: #00ff88;
+    --neon-red: #ff003c;
+    --neon-yellow: #ffe600;
     --dark-bg: #050510;
     --card-bg: #0a0a1a;
     --card-border: #1a1a3a;
@@ -19,10 +22,11 @@
     --glow-cyan: 0 0 20px #00f5ff66, 0 0 40px #00f5ff33;
     --glow-orange: 0 0 20px #ff6b0066, 0 0 40px #ff6b0033;
     --glow-purple: 0 0 20px #b400ff66, 0 0 40px #b400ff33;
+    --glow-green: 0 0 20px #00ff8866, 0 0 40px #00ff8833;
+    --nav-height: 70px;
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -30,13 +34,12 @@
     color: var(--text-main);
     font-family: 'Rajdhani', sans-serif;
     overflow-x: hidden;
-    cursor: default;
   }
 
-  /* STARFIELD */
+  /* ── STARFIELD ── */
   #starfield {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 0; overflow: hidden;
+    pointer-events: none; z-index: 0;
   }
   .star {
     position: absolute; background: white; border-radius: 50%;
@@ -44,35 +47,75 @@
   }
   @keyframes twinkle { from { opacity: 0.1; } to { opacity: 0.9; } }
 
-  /* NAV */
+  /* ── NAV ── */
   nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    height: var(--nav-height);
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 5vw; height: 70px;
-    background: linear-gradient(180deg, rgba(5,5,16,0.98) 0%, rgba(5,5,16,0.0) 100%);
-    backdrop-filter: blur(10px);
+    padding: 0 5vw;
+    background: rgba(5,5,16,0.97);
+    border-bottom: 1px solid #1a1a3a;
+    backdrop-filter: blur(12px);
   }
   .nav-logo {
-    font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.4rem;
+    font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.3rem;
     letter-spacing: 0.15em; color: var(--neon-cyan);
-    text-shadow: var(--glow-cyan);
+    text-shadow: var(--glow-cyan); text-decoration: none; white-space: nowrap;
   }
   .nav-logo span { color: var(--neon-orange); }
-  .nav-links { display: flex; gap: 2rem; list-style: none; }
+
+  /* Desktop nav links */
+  .nav-links {
+    display: flex; gap: 1.5rem; list-style: none; align-items: center;
+  }
   .nav-links a {
-    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem;
     letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--text-dim); text-decoration: none;
-    transition: color 0.2s, text-shadow 0.2s;
+    transition: color 0.2s, text-shadow 0.2s; white-space: nowrap;
   }
   .nav-links a:hover { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
 
-  /* HERO */
+  /* Hamburger */
+  .nav-hamburger {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer;
+    background: none; border: none; padding: 6px; z-index: 210;
+  }
+  .nav-hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--neon-cyan); border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Mobile nav drawer */
+  .nav-drawer {
+    display: none; position: fixed; top: var(--nav-height); left: 0; right: 0;
+    background: rgba(5,5,16,0.99); border-bottom: 1px solid #1a1a3a;
+    z-index: 190; padding: 1.5rem 5vw 2rem;
+    backdrop-filter: blur(12px);
+  }
+  .nav-drawer.open { display: block; }
+  .nav-drawer ul { list-style: none; display: flex; flex-direction: column; gap: 0; }
+  .nav-drawer ul li a {
+    display: block; padding: 0.85rem 0;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1.1rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-dim); text-decoration: none;
+    border-bottom: 1px solid #1a1a3a;
+    transition: color 0.2s;
+  }
+  .nav-drawer ul li:last-child a { border-bottom: none; }
+  .nav-drawer ul li a:hover { color: var(--neon-cyan); }
+
+  /* ── HERO ── */
   .hero {
     position: relative; z-index: 1;
     min-height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 0 5vw;
+    text-align: center; padding: calc(var(--nav-height) + 2rem) 5vw 4rem;
     overflow: hidden;
   }
   .hero-bg {
@@ -89,7 +132,7 @@
   }
   .hero-title {
     font-family: 'Orbitron', monospace; font-weight: 900;
-    font-size: clamp(3rem, 10vw, 8rem); line-height: 0.95;
+    font-size: clamp(2.5rem, 10vw, 8rem); line-height: 0.95;
     letter-spacing: -0.02em; margin-bottom: 1.5rem;
     opacity: 0; animation: fadeUp 0.8s 0.5s forwards;
   }
@@ -100,34 +143,45 @@
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
   .hero-sub {
-    font-size: 1.25rem; font-weight: 300; color: var(--text-dim);
-    max-width: 600px; line-height: 1.6; margin-bottom: 3rem;
+    font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 300; color: var(--text-dim);
+    max-width: 600px; line-height: 1.6; margin-bottom: 2.5rem;
     opacity: 0; animation: fadeUp 0.8s 0.7s forwards;
   }
   .hero-cta {
     display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
     opacity: 0; animation: fadeUp 0.8s 0.9s forwards;
   }
+
+  /* Game count badge */
+  .hero-badge {
+    margin-top: 2.5rem;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.25em; color: var(--text-dim);
+    opacity: 0; animation: fadeUp 0.8s 1.1s forwards;
+  }
+  .hero-badge strong { color: var(--neon-green); }
+
+  /* ── BUTTONS ── */
   .btn-primary {
-    padding: 0.9rem 2.5rem; border-radius: 4px;
-    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 0.85rem;
+    padding: 0.85rem 2rem; border-radius: 4px;
+    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 0.8rem;
     letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
     background: var(--neon-cyan); color: var(--dark-bg);
     border: none; cursor: pointer; transition: all 0.2s;
-    box-shadow: var(--glow-cyan);
+    box-shadow: var(--glow-cyan); white-space: nowrap;
   }
   .btn-primary:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 0 40px #00f5ff99; }
   .btn-secondary {
-    padding: 0.9rem 2.5rem; border-radius: 4px;
-    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 0.85rem;
+    padding: 0.85rem 2rem; border-radius: 4px;
+    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 0.8rem;
     letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
     background: transparent; color: var(--neon-orange);
     border: 2px solid var(--neon-orange); cursor: pointer; transition: all 0.2s;
-    box-shadow: var(--glow-orange);
+    box-shadow: var(--glow-orange); white-space: nowrap;
   }
   .btn-secondary:hover { background: var(--neon-orange); color: var(--dark-bg); transform: translateY(-2px); }
 
-  /* SCROLL INDICATOR */
+  /* ── SCROLL HINT ── */
   .scroll-hint {
     position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
     display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
@@ -141,8 +195,8 @@
   }
   @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
 
-  /* GAMES SECTION */
-  .section { position: relative; z-index: 1; padding: 8rem 5vw; }
+  /* ── GAMES SECTION ── */
+  .section { position: relative; z-index: 1; padding: 6rem 5vw; }
   .section-label {
     font-family: 'Share Tech Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.3em; color: var(--neon-orange); text-transform: uppercase;
@@ -150,93 +204,172 @@
   }
   .section-title {
     font-family: 'Orbitron', monospace; font-weight: 900;
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
     margin-bottom: 1rem; color: #fff;
   }
-  .section-sub { font-size: 1.1rem; color: var(--text-dim); max-width: 500px; margin-bottom: 4rem; line-height: 1.6; }
+  .section-sub { font-size: 1.05rem; color: var(--text-dim); max-width: 550px; margin-bottom: 3.5rem; line-height: 1.6; }
 
-  /* GAME CARDS */
-  .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2px; }
+  /* ── GAME CARDS GRID ── */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
 
   .game-card {
     position: relative; overflow: hidden;
     background: var(--card-bg); border: 1px solid var(--card-border);
-    transition: all 0.4s ease; cursor: pointer;
+    transition: all 0.35s ease; cursor: pointer;
   }
-  .game-card:hover { border-color: var(--accent); z-index: 2; transform: scale(1.02); }
+  .game-card:hover { border-color: var(--accent); z-index: 2; transform: translateY(-4px); box-shadow: 0 8px 40px var(--accent-glow, #00f5ff33); }
   .game-card:hover .card-glow { opacity: 1; }
   .game-card:hover .card-title { color: var(--accent); }
 
-  .game-card.fight { --accent: var(--neon-orange); }
-  .game-card.race  { --accent: var(--neon-cyan); }
-  .game-card.arena { --accent: var(--neon-purple); }
+  .game-card.fight  { --accent: var(--neon-orange); }
+  .game-card.race   { --accent: var(--neon-cyan); }
+  .game-card.space  { --accent: var(--neon-purple); }
+  .game-card.tank   { --accent: var(--neon-green); }
+  .game-card.ninja  { --accent: var(--neon-yellow); }
 
   .card-glow {
     position: absolute; inset: 0; pointer-events: none; opacity: 0;
-    background: radial-gradient(ellipse at center, var(--accent)11, transparent 70%);
+    background: radial-gradient(ellipse at top, color-mix(in srgb, var(--accent) 15%, transparent), transparent 70%);
     transition: opacity 0.4s;
   }
-  .card-canvas {
-    width: 100%; height: 220px; display: block;
-    background: #080818;
-  }
-  .card-body { padding: 1.8rem 2rem; }
+  .card-canvas { width: 100%; height: 180px; display: block; background: #080818; }
+
+  .card-body { padding: 1.5rem 1.6rem; }
   .card-tag {
-    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
-    letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent);
-    margin-bottom: 0.75rem;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 0.6rem;
   }
   .card-title {
-    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1.4rem;
-    margin-bottom: 0.75rem; color: #fff; transition: color 0.3s;
+    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1.15rem;
+    margin-bottom: 0.6rem; color: #fff; transition: color 0.3s; line-height: 1.2;
   }
-  .card-desc { font-size: 0.95rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.5rem; }
-  .card-features { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+  .card-desc { font-size: 0.88rem; color: var(--text-dim); line-height: 1.55; margin-bottom: 1.2rem; }
+  .card-features { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
   .feat-tag {
-    padding: 0.25rem 0.75rem; border: 1px solid var(--card-border);
-    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
-    letter-spacing: 0.15em; color: var(--text-dim); border-radius: 2px;
+    padding: 0.2rem 0.6rem; border: 1px solid var(--card-border);
+    font-family: 'Share Tech Mono', monospace; font-size: 0.58rem;
+    letter-spacing: 0.12em; color: var(--text-dim); border-radius: 2px;
   }
   .card-link {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 0.8rem;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--accent); text-decoration: none;
-    transition: gap 0.2s;
+    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 0.75rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); text-decoration: none; transition: gap 0.2s;
   }
   .card-link:hover { gap: 0.9rem; }
-  .card-link::after { content: '→'; font-size: 1.1rem; }
+  .card-link::after { content: '→'; font-size: 1rem; }
 
-  /* STATS BAND */
+  /* ── STATS BAND ── */
   .stats-band {
     position: relative; z-index: 1;
-    background: var(--card-bg); border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border);
+    background: var(--card-bg);
+    border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border);
     padding: 3rem 5vw;
     display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem;
   }
   .stat { text-align: center; }
   .stat-num {
-    font-family: 'Orbitron', monospace; font-weight: 900; font-size: 2.5rem;
+    font-family: 'Orbitron', monospace; font-weight: 900; font-size: clamp(1.8rem, 4vw, 2.5rem);
     background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-  .stat-label { font-size: 0.85rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-top: 0.3rem; }
+  .stat-label { font-size: 0.8rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-top: 0.3rem; }
 
-  /* FOOTER */
+  /* ── ALL GAMES QUICK ACCESS ── */
+  .quick-nav {
+    position: relative; z-index: 1;
+    padding: 3rem 5vw;
+    border-bottom: 1px solid var(--card-border);
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.75rem;
+  }
+  .quick-nav-label {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase;
+    margin-right: 0.5rem; white-space: nowrap;
+  }
+  .qbtn {
+    padding: 0.5rem 1.1rem; border-radius: 3px;
+    font-family: 'Orbitron', monospace; font-weight: 700; font-size: 0.65rem;
+    letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none;
+    border: 1px solid; transition: all 0.2s; white-space: nowrap;
+  }
+  .qbtn-fight  { color: var(--neon-orange); border-color: var(--neon-orange); }
+  .qbtn-fight:hover  { background: var(--neon-orange); color: var(--dark-bg); }
+  .qbtn-race   { color: var(--neon-cyan);   border-color: var(--neon-cyan); }
+  .qbtn-race:hover   { background: var(--neon-cyan); color: var(--dark-bg); }
+  .qbtn-space  { color: var(--neon-purple); border-color: var(--neon-purple); }
+  .qbtn-space:hover  { background: var(--neon-purple); color: #fff; }
+  .qbtn-tank   { color: var(--neon-green);  border-color: var(--neon-green); }
+  .qbtn-tank:hover   { background: var(--neon-green); color: var(--dark-bg); }
+  .qbtn-ninja  { color: var(--neon-yellow); border-color: var(--neon-yellow); }
+  .qbtn-ninja:hover  { background: var(--neon-yellow); color: var(--dark-bg); }
+
+  /* ── FOOTER ── */
   footer {
     position: relative; z-index: 1;
     background: #030308; border-top: 1px solid var(--card-border);
     padding: 3rem 5vw; text-align: center;
   }
-  .footer-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.2rem; color: var(--neon-cyan); margin-bottom: 1rem; }
-  .footer-copy { font-size: 0.8rem; color: var(--text-dim); letter-spacing: 0.1em; }
+  .footer-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.2rem; color: var(--neon-cyan); margin-bottom: 0.75rem; }
+  .footer-games {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .footer-games a {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.15em; color: var(--text-dim); text-decoration: none; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .footer-games a:hover { color: var(--neon-cyan); }
+  .footer-copy { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.1em; }
 
   @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
 
   /* Scanline overlay */
   body::after {
     content: ''; position: fixed; inset: 0; z-index: 999; pointer-events: none;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
+  }
+
+  /* ── RESPONSIVE ── */
+
+  /* Tablet: 2 columns */
+  @media (max-width: 1024px) {
+    .games-grid { grid-template-columns: repeat(2, 1fr); }
+    .nav-links { gap: 1.2rem; }
+    .nav-links a { font-size: 0.78rem; }
+  }
+
+  /* Mobile: hide desktop nav, show hamburger */
+  @media (max-width: 700px) {
+    .nav-links { display: none; }
+    .nav-hamburger { display: flex; }
+    .games-grid { grid-template-columns: 1fr; gap: 2px; }
+    .card-canvas { height: 160px; }
+    .hero-cta { flex-direction: column; align-items: center; }
+    .btn-primary, .btn-secondary { width: 100%; max-width: 280px; text-align: center; }
+    .section { padding: 4rem 4vw; }
+    .stats-band { padding: 2.5rem 4vw; gap: 1.5rem; }
+    .stat-num { font-size: 1.8rem; }
+    .quick-nav { padding: 2rem 4vw; }
+    .scroll-hint { display: none; }
+    nav { padding: 0 4vw; }
+  }
+
+  /* Tiny phones */
+  @media (max-width: 380px) {
+    .nav-logo { font-size: 1rem; }
+    .card-body { padding: 1.2rem; }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
 </head>
@@ -244,16 +377,37 @@
 
 <div id="starfield"></div>
 
+<!-- ── NAVIGATION ── -->
 <nav>
-  <div class="nav-logo">NEXUS<span>ARENA</span></div>
+  <a href="index.html" class="nav-logo">NEXUS<span>ARENA</span></a>
   <ul class="nav-links">
     <li><a href="#games">Games</a></li>
     <li><a href="#stats">Stats</a></li>
-    <li><a href="fighting.html">Fight</a></li>
-    <li><a href="car-racing.html">Race</a></li>
+    <li><a href="fighting.html">⚔️ Fight</a></li>
+    <li><a href="car-racing.html">🏎️ Race</a></li>
+    <li><a href="space.html">🚀 Space</a></li>
+    <li><a href="tankfight.html">🛡️ Tanks</a></li>
+    <li><a href="ninja.runner.html">🥷 Ninja</a></li>
   </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
+<!-- Mobile nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <ul>
+    <li><a href="#games" onclick="closeMenu()">🎮 All Games</a></li>
+    <li><a href="#stats" onclick="closeMenu()">📊 Stats</a></li>
+    <li><a href="fighting.html">⚔️ Shadow Karate</a></li>
+    <li><a href="car-racing.html">🏎️ Turbo Overdrive</a></li>
+    <li><a href="space.html">🚀 Space Shooter</a></li>
+    <li><a href="tankfight.html">🛡️ Tank Warfare</a></li>
+    <li><a href="ninja.runner.html">🥷 Ninja Runner</a></li>
+  </ul>
+</div>
+
+<!-- ── HERO ── -->
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-eyebrow">⚡ The Ultimate Gaming Universe</div>
@@ -261,22 +415,34 @@
     <span class="line1">NEXUS</span>
     <span class="line2">ARENA</span>
   </h1>
-  <p class="hero-sub">Enter a world of supernatural combat, ultra-speed racing, and legendary battles. Your arena. Your rules. No limits.</p>
+  <p class="hero-sub">Five worlds. Infinite power. One champion. Supernatural combat, neon racing, space battles, tank warfare, and ninja parkour — all in one universe.</p>
   <div class="hero-cta">
     <a href="fighting.html" class="btn-primary">Start Fighting</a>
-    <a href="car-racing.html" class="btn-secondary">Race Now</a>
+    <a href="#games" class="btn-secondary">Browse Games</a>
   </div>
+  <div class="hero-badge">— <strong>5 GAMES</strong> READY TO PLAY · NO DOWNLOAD NEEDED —</div>
   <div class="scroll-hint">SCROLL</div>
 </section>
 
+<!-- ── QUICK ACCESS BAR ── -->
+<div class="quick-nav">
+  <span class="quick-nav-label">QUICK PLAY //</span>
+  <a href="fighting.html"    class="qbtn qbtn-fight">⚔️ Fight</a>
+  <a href="car-racing.html"  class="qbtn qbtn-race">🏎️ Race</a>
+  <a href="space.html"       class="qbtn qbtn-space">🚀 Space</a>
+  <a href="tankfight.html"   class="qbtn qbtn-tank">🛡️ Tanks</a>
+  <a href="ninja.runner.html" class="qbtn qbtn-ninja">🥷 Ninja</a>
+</div>
+
+<!-- ── GAMES SECTION ── -->
 <section class="section" id="games">
   <div class="section-label">// Choose Your Battle</div>
   <h2 class="section-title">PICK YOUR GAME</h2>
-  <p class="section-sub">Two worlds. Infinite power. One champion. Which legend will you become?</p>
+  <p class="section-sub">Five worlds. Five legends. One arena to rule them all. Which champion will you become?</p>
 
   <div class="games-grid">
 
-    <!-- FIGHTING CARD -->
+    <!-- FIGHTING -->
     <div class="game-card fight" onclick="location.href='fighting.html'">
       <div class="card-glow"></div>
       <canvas class="card-canvas" id="fightCanvas"></canvas>
@@ -286,51 +452,109 @@
         <p class="card-desc">Unleash supernatural karate with elemental magic, spirit projectiles, and ultimate finishing moves against deadly AI opponents.</p>
         <div class="card-features">
           <span class="feat-tag">MAGIC POWERS</span>
-          <span class="feat-tag">COMBO SYSTEM</span>
-          <span class="feat-tag">BOSS BATTLES</span>
-          <span class="feat-tag">ULTIMATE SKILLS</span>
+          <span class="feat-tag">COMBOS</span>
+          <span class="feat-tag">BOSS FIGHTS</span>
         </div>
         <a href="fighting.html" class="card-link">Enter the Dojo</a>
       </div>
     </div>
 
-    <!-- RACING CARD -->
+    <!-- RACING -->
     <div class="game-card race" onclick="location.href='car-racing.html'">
       <div class="card-glow"></div>
       <canvas class="card-canvas" id="raceCanvas"></canvas>
       <div class="card-body">
         <div class="card-tag">// Speed · Missions · Freedom</div>
         <div class="card-title">TURBO OVERDRIVE</div>
-        <p class="card-desc">Tear through neon highways at supersonic speeds. Free-roam an open city or blaze through high-stakes missions with ultra-realistic cars.</p>
+        <p class="card-desc">Tear through neon highways at supersonic speeds. Free-roam an open city or blaze through high-stakes missions.</p>
         <div class="card-features">
           <span class="feat-tag">FREE ROAM</span>
           <span class="feat-tag">MISSIONS</span>
           <span class="feat-tag">BOOST SYSTEM</span>
-          <span class="feat-tag">NEON CITIES</span>
         </div>
         <a href="car-racing.html" class="card-link">Hit the Road</a>
+      </div>
+    </div>
+
+    <!-- SPACE -->
+    <div class="game-card space" onclick="location.href='space.html'">
+      <div class="card-glow"></div>
+      <canvas class="card-canvas" id="spaceCanvas"></canvas>
+      <div class="card-body">
+        <div class="card-tag">// Shoot · Survive · Dominate</div>
+        <div class="card-title">SPACE SHOOTER</div>
+        <p class="card-desc">Pilot your starfighter through asteroid fields and alien armadas. Upgrade weapons, dodge plasma barrages, and save the galaxy.</p>
+        <div class="card-features">
+          <span class="feat-tag">WAVES</span>
+          <span class="feat-tag">POWER-UPS</span>
+          <span class="feat-tag">BOSS ALIENS</span>
+        </div>
+        <a href="space.html" class="card-link">Launch Ship</a>
+      </div>
+    </div>
+
+    <!-- TANK -->
+    <div class="game-card tank" onclick="location.href='tankfight.html'">
+      <div class="card-glow"></div>
+      <canvas class="card-canvas" id="tankCanvas"></canvas>
+      <div class="card-body">
+        <div class="card-tag">// Strategy · Firepower · Tactics</div>
+        <div class="card-title">TANK WARFARE</div>
+        <p class="card-desc">Command armored behemoths across explosive battlefields. Aim, fire, and outmaneuver enemy tank squads in tactical combat.</p>
+        <div class="card-features">
+          <span class="feat-tag">ARTILLERY</span>
+          <span class="feat-tag">TERRAIN</span>
+          <span class="feat-tag">MULTIPLAYER</span>
+        </div>
+        <a href="tankfight.html" class="card-link">Roll Out</a>
+      </div>
+    </div>
+
+    <!-- NINJA -->
+    <div class="game-card ninja" onclick="location.href='ninja.runner.html'">
+      <div class="card-glow"></div>
+      <canvas class="card-canvas" id="ninjaCanvas"></canvas>
+      <div class="card-body">
+        <div class="card-tag">// Run · Jump · Slice</div>
+        <div class="card-title">NINJA RUNNER</div>
+        <p class="card-desc">Sprint, wall-jump, and slash through endless neon obstacles. Chain combos mid-air, dodge traps, and set the high score.</p>
+        <div class="card-features">
+          <span class="feat-tag">PARKOUR</span>
+          <span class="feat-tag">ENDLESS</span>
+          <span class="feat-tag">HIGH SCORE</span>
+        </div>
+        <a href="ninja.runner.html" class="card-link">Start Running</a>
       </div>
     </div>
 
   </div>
 </section>
 
+<!-- ── STATS BAND ── -->
 <div class="stats-band" id="stats">
-  <div class="stat"><div class="stat-num" data-target="2">0</div><div class="stat-label">Epic Games</div></div>
+  <div class="stat"><div class="stat-num" data-target="5">0</div><div class="stat-label">Epic Games</div></div>
   <div class="stat"><div class="stat-num" data-target="50">0</div><div class="stat-label">Unique Moves</div></div>
   <div class="stat"><div class="stat-num" data-target="12">0</div><div class="stat-label">Boss Levels</div></div>
   <div class="stat"><div class="stat-num" data-target="999">0</div><div class="stat-label">Max Speed km/h</div></div>
 </div>
 
+<!-- ── FOOTER ── -->
 <footer>
   <div class="footer-logo">NEXUS ARENA</div>
+  <div class="footer-games">
+    <a href="fighting.html">⚔️ Shadow Karate</a>
+    <a href="car-racing.html">🏎️ Turbo Overdrive</a>
+    <a href="space.html">🚀 Space Shooter</a>
+    <a href="tankfight.html">🛡️ Tank Warfare</a>
+    <a href="ninja.runner.html">🥷 Ninja Runner</a>
+  </div>
   <p class="footer-copy">© 2025 NEXUS ARENA · All Rights Reserved · Built for Champions</p>
 </footer>
 
 <script>
 // ── STARFIELD ──
 const sf = document.getElementById('starfield');
-for (let i = 0; i < 200; i++) {
+for (let i = 0; i < 180; i++) {
   const s = document.createElement('div');
   s.className = 'star';
   const sz = Math.random() * 2.5 + 0.5;
@@ -338,56 +562,65 @@ for (let i = 0; i < 200; i++) {
   sf.appendChild(s);
 }
 
-// ── FIGHT CANVAS PREVIEW ──
+// ── HAMBURGER MENU ──
+const hamburger = document.getElementById('hamburger');
+const navDrawer = document.getElementById('navDrawer');
+hamburger.addEventListener('click', () => {
+  const open = navDrawer.classList.toggle('open');
+  hamburger.classList.toggle('open', open);
+});
+function closeMenu() {
+  navDrawer.classList.remove('open');
+  hamburger.classList.remove('open');
+}
+// Close on outside click
+document.addEventListener('click', e => {
+  if (!hamburger.contains(e.target) && !navDrawer.contains(e.target)) closeMenu();
+});
+
+// ── HELPER: fit canvas ──
+function fitCanvas(c) {
+  c.width = c.offsetWidth || 340;
+  c.height = c.offsetHeight || 180;
+  return c.getContext('2d');
+}
+
+// ── FIGHT CANVAS ──
 (function(){
   const c = document.getElementById('fightCanvas');
-  const ctx = c.getContext('2d');
-  c.width = c.offsetWidth; c.height = c.offsetHeight;
+  const ctx = fitCanvas(c);
   let t = 0;
   function drawFighter(x,y,facing,color,aura,frame) {
     ctx.save(); ctx.translate(x,y);
     if(!facing) ctx.scale(-1,1);
-    // Aura
-    const g = ctx.createRadialGradient(0,-40,5,0,-40,60);
-    g.addColorStop(0,aura+'88'); g.addColorStop(1,aura+'00');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,-40,60,0,Math.PI*2); ctx.fill();
-    // Body
-    const kick = Math.sin(frame*0.15)*20;
-    // legs
-    ctx.fillStyle=color;
-    ctx.beginPath(); ctx.roundRect(-8,-20+kick,14,40,3); ctx.fill();
-    // torso
-    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-13,-65,26,50,4); ctx.fill();
-    // head
-    ctx.fillStyle='#ffcc99'; ctx.beginPath(); ctx.arc(0,-80,16,0,Math.PI*2); ctx.fill();
-    // belt
-    ctx.fillStyle='#ff6b00'; ctx.fillRect(-13,-25,26,7);
-    // fist glow
-    ctx.shadowColor=aura; ctx.shadowBlur=15;
-    ctx.fillStyle=aura; ctx.beginPath(); ctx.arc(18,-55+Math.sin(frame*0.1)*10,8,0,Math.PI*2); ctx.fill();
+    const g = ctx.createRadialGradient(0,-40,5,0,-40,55);
+    g.addColorStop(0,aura+'77'); g.addColorStop(1,aura+'00');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,-40,55,0,Math.PI*2); ctx.fill();
+    const kick = Math.sin(frame*0.15)*18;
+    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-8,-20+kick,14,38,3); ctx.fill();
+    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-12,-62,24,46,4); ctx.fill();
+    ctx.fillStyle='#ffcc99'; ctx.beginPath(); ctx.arc(0,-76,14,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ff6b00'; ctx.fillRect(-12,-24,24,6);
+    ctx.shadowColor=aura; ctx.shadowBlur=14;
+    ctx.fillStyle=aura; ctx.beginPath(); ctx.arc(16,-52+Math.sin(frame*0.1)*9,7,0,Math.PI*2); ctx.fill();
     ctx.shadowBlur=0;
     ctx.restore();
   }
   function loop() {
     ctx.clearRect(0,0,c.width,c.height);
-    // floor
-    const flr=ctx.createLinearGradient(0,c.height-30,0,c.height);
+    const flr=ctx.createLinearGradient(0,c.height-28,0,c.height);
     flr.addColorStop(0,'#1a0a3a'); flr.addColorStop(1,'#050510');
-    ctx.fillStyle=flr; ctx.fillRect(0,c.height-30,c.width,30);
-    // grid lines
-    ctx.strokeStyle='#ffffff08'; ctx.lineWidth=1;
+    ctx.fillStyle=flr; ctx.fillRect(0,c.height-28,c.width,28);
+    ctx.strokeStyle='#ffffff07'; ctx.lineWidth=1;
     for(let i=0;i<c.width;i+=30){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,c.height);ctx.stroke();}
     for(let j=0;j<c.height;j+=30){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(c.width,j);ctx.stroke();}
-    // fighters
-    drawFighter(c.width*0.28, c.height-30, true, '#ff6b0066', '#ff6b00', t);
-    drawFighter(c.width*0.72, c.height-30, false, '#00f5ff44', '#00f5ff', t+30);
-    // vs
-    ctx.font='bold 22px Orbitron,monospace'; ctx.fillStyle='#ffffff22';
+    drawFighter(c.width*0.28, c.height-28, true,  '#ff6b0055', '#ff6b00', t);
+    drawFighter(c.width*0.72, c.height-28, false, '#00f5ff33', '#00f5ff', t+30);
+    ctx.font='bold 18px Orbitron,monospace'; ctx.fillStyle='#ffffff1a';
     ctx.textAlign='center'; ctx.fillText('VS', c.width/2, c.height/2);
-    // energy bolts
-    if(Math.sin(t*0.08)>0.7) {
-      ctx.strokeStyle='#ff6b00'; ctx.lineWidth=2; ctx.shadowColor='#ff6b00'; ctx.shadowBlur=10;
-      ctx.beginPath(); ctx.moveTo(c.width*0.35,c.height-70); ctx.lineTo(c.width*0.65,c.height-70); ctx.stroke();
+    if(Math.sin(t*0.08)>0.7){
+      ctx.strokeStyle='#ff6b00'; ctx.lineWidth=2; ctx.shadowColor='#ff6b00'; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.moveTo(c.width*0.35,c.height-65); ctx.lineTo(c.width*0.65,c.height-65); ctx.stroke();
       ctx.shadowBlur=0;
     }
     t++; requestAnimationFrame(loop);
@@ -395,68 +628,200 @@ for (let i = 0; i < 200; i++) {
   loop();
 })();
 
-// ── RACE CANVAS PREVIEW ──
+// ── RACE CANVAS ──
 (function(){
   const c = document.getElementById('raceCanvas');
-  const ctx = c.getContext('2d');
-  c.width = c.offsetWidth; c.height = c.offsetHeight;
-  let t = 0, bgOffset = 0;
-  function drawCar(x,y,color,glow,scale=1) {
-    ctx.save(); ctx.translate(x,y); ctx.scale(scale,scale);
-    // body glow
-    ctx.shadowColor=glow; ctx.shadowBlur=20;
-    // car body
-    ctx.fillStyle=color; ctx.beginPath();
-    ctx.roundRect(-30,-14,60,20,4); ctx.fill();
-    ctx.fillStyle=color; ctx.beginPath();
-    ctx.roundRect(-20,-28,40,16,6); ctx.fill();
-    // windshield
-    ctx.fillStyle='rgba(0,245,255,0.5)'; ctx.beginPath();
-    ctx.roundRect(-15,-27,30,12,3); ctx.fill();
-    // wheels
-    ctx.shadowBlur=0;
-    ctx.fillStyle='#222'; 
-    [[−20,8],[20,8]].forEach(([wx,wy])=>{ctx.beginPath();ctx.arc(wx,wy,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#555';ctx.lineWidth=2;ctx.stroke();});
-    ctx.shadowBlur=0;
+  const ctx = fitCanvas(c);
+  let t = 0, bgO = 0;
+  function drawCar(x,y,color,glow) {
+    ctx.save(); ctx.translate(x,y);
+    ctx.shadowColor=glow; ctx.shadowBlur=18;
+    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-28,-13,56,18,4); ctx.fill();
+    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-18,-26,36,15,5); ctx.fill();
+    ctx.fillStyle='rgba(0,245,255,0.45)'; ctx.beginPath(); ctx.roundRect(-14,-25,28,11,3); ctx.fill();
+    ctx.shadowBlur=0; ctx.fillStyle='#222';
+    [[-19,7],[19,7]].forEach(([wx,wy])=>{ctx.beginPath();ctx.arc(wx,wy,6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#555';ctx.lineWidth=2;ctx.stroke();});
     ctx.restore();
   }
   function loop() {
     ctx.clearRect(0,0,c.width,c.height);
-    bgOffset = (bgOffset+3)%c.width;
-    // sky gradient
+    bgO=(bgO+2.5)%c.width;
     const sky=ctx.createLinearGradient(0,0,0,c.height*0.6);
     sky.addColorStop(0,'#050520'); sky.addColorStop(1,'#0a0530');
     ctx.fillStyle=sky; ctx.fillRect(0,0,c.width,c.height*0.6);
-    // road
     const road=ctx.createLinearGradient(0,c.height*0.55,0,c.height);
     road.addColorStop(0,'#111125'); road.addColorStop(1,'#080815');
     ctx.fillStyle=road; ctx.fillRect(0,c.height*0.55,c.width,c.height);
-    // road lines
-    ctx.strokeStyle='#ffffff18'; ctx.lineWidth=2; ctx.setLineDash([30,20]);
-    ctx.lineDashOffset=-bgOffset*2;
+    ctx.strokeStyle='#ffffff15'; ctx.lineWidth=2; ctx.setLineDash([28,18]);
+    ctx.lineDashOffset=-bgO*2;
     ctx.beginPath(); ctx.moveTo(0,c.height*0.75); ctx.lineTo(c.width,c.height*0.75); ctx.stroke();
     ctx.setLineDash([]);
-    // neon buildings
-    const buildings=[[0.1,0.2,0.08,0.4,'#00f5ff'],[0.25,0.15,0.06,0.45,'#b400ff'],[0.45,0.1,0.1,0.5,'#ff6b00'],[0.65,0.18,0.07,0.42,'#00f5ff'],[0.82,0.12,0.09,0.48,'#b400ff']];
-    buildings.forEach(([bx,bh,bw,base,bc])=>{
-      const rx=(bx*c.width-bgOffset*0.3+c.width)%c.width;
+    [[0.1,0.2,0.08,0.42,'#00f5ff'],[0.28,0.14,0.06,0.44,'#b400ff'],[0.48,0.1,0.09,0.5,'#ff6b00'],[0.67,0.17,0.07,0.43,'#00f5ff'],[0.85,0.12,0.08,0.47,'#b400ff']].forEach(([bx,bh,bw,base,bc])=>{
+      const rx=(bx*c.width-bgO*0.3+c.width)%c.width;
       ctx.fillStyle='#0a0a20'; ctx.fillRect(rx,c.height*base-c.height*bh,c.width*bw,c.height*bh);
-      ctx.strokeStyle=bc+'66'; ctx.lineWidth=1;
-      ctx.strokeRect(rx,c.height*base-c.height*bh,c.width*bw,c.height*bh);
-      // windows
-      ctx.fillStyle=bc+'44';
+      ctx.strokeStyle=bc+'55'; ctx.lineWidth=1; ctx.strokeRect(rx,c.height*base-c.height*bh,c.width*bw,c.height*bh);
+      ctx.fillStyle=bc+'33';
       for(let r=0;r<Math.floor(c.height*bh/12);r++)
         for(let col=0;col<3;col++)
-          ctx.fillRect(rx+4+col*8, c.height*base-c.height*bh+4+r*12, 5,7);
+          ctx.fillRect(rx+3+col*7,c.height*base-c.height*bh+3+r*11,4,6);
     });
-    // player car
     drawCar(c.width*0.3, c.height*0.72, '#00f5ff', '#00f5ff');
-    // speed lines
-    ctx.strokeStyle='#ffffff22'; ctx.lineWidth=1;
-    for(let i=0;i<6;i++){
-      const ly=c.height*0.62+i*10;
-      ctx.beginPath(); ctx.moveTo(c.width*0.5,ly); ctx.lineTo(c.width,ly); ctx.stroke();
+    t++; requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// ── SPACE CANVAS ──
+(function(){
+  const c = document.getElementById('spaceCanvas');
+  const ctx = fitCanvas(c);
+  let t = 0;
+  const stars = Array.from({length:60},()=>({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*1.5+0.3,sp:Math.random()*1.5+0.5}));
+  const enemies = [{x:c.width*0.3,y:40},{x:c.width*0.55,y:60},{x:c.width*0.75,y:35}];
+  function loop(){
+    ctx.fillStyle='#030310'; ctx.fillRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      s.x -= s.sp; if(s.x<0){s.x=c.width;s.y=Math.random()*c.height;}
+      ctx.fillStyle='#ffffff'; ctx.globalAlpha=0.7;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.s,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    // Player ship
+    const px=c.width*0.18, py=c.height*0.65;
+    ctx.save(); ctx.translate(px,py);
+    ctx.shadowColor='#00f5ff'; ctx.shadowBlur=18;
+    ctx.fillStyle='#00f5ff';
+    ctx.beginPath(); ctx.moveTo(22,0); ctx.lineTo(-14,-10); ctx.lineTo(-8,0); ctx.lineTo(-14,10); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#b400ff'; ctx.beginPath(); ctx.arc(-10,0,5,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0; ctx.restore();
+    // Laser
+    if(Math.sin(t*0.1)>0){
+      ctx.strokeStyle='#00f5ff'; ctx.lineWidth=2; ctx.shadowColor='#00f5ff'; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.moveTo(px+22,py); ctx.lineTo(px+22+(c.width*0.15)+(Math.sin(t*0.1)*60),py); ctx.stroke();
+      ctx.shadowBlur=0;
     }
+    // Enemy ships
+    enemies.forEach((e,i)=>{
+      e.x -= 0.8; if(e.x<-30) e.x=c.width+20;
+      e.y += Math.sin(t*0.05+i)*0.6;
+      ctx.save(); ctx.translate(e.x,e.y);
+      ctx.shadowColor='#ff003c'; ctx.shadowBlur=12;
+      ctx.fillStyle='#ff003c';
+      ctx.beginPath(); ctx.moveTo(-18,0); ctx.lineTo(10,-8); ctx.lineTo(6,0); ctx.lineTo(10,8); ctx.closePath(); ctx.fill();
+      ctx.shadowBlur=0; ctx.restore();
+    });
+    // Planet
+    const pg=ctx.createRadialGradient(c.width*0.82,c.height*0.25,2,c.width*0.82,c.height*0.25,35);
+    pg.addColorStop(0,'#b400ff88'); pg.addColorStop(1,'#b400ff11');
+    ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(c.width*0.82,c.height*0.25,35,0,Math.PI*2); ctx.fill();
+    t++; requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// ── TANK CANVAS ──
+(function(){
+  const c = document.getElementById('tankCanvas');
+  const ctx = fitCanvas(c);
+  let t = 0;
+  function drawTank(x,y,color,glow,dir){
+    ctx.save(); ctx.translate(x,y);
+    if(dir<0) ctx.scale(-1,1);
+    ctx.shadowColor=glow; ctx.shadowBlur=14;
+    // Tracks
+    ctx.fillStyle='#333'; ctx.beginPath(); ctx.roundRect(-26,6,52,12,3); ctx.fill();
+    ctx.fillStyle='#555';
+    for(let i=-22;i<26;i+=10){ ctx.fillRect(i,7,6,10); }
+    // Body
+    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(-20,-8,40,16,4); ctx.fill();
+    // Turret
+    ctx.fillStyle=color; ctx.beginPath(); ctx.arc(0,-8,12,0,Math.PI*2); ctx.fill();
+    // Barrel
+    ctx.fillStyle=color; ctx.beginPath(); ctx.roundRect(8,-11,22,6,3); ctx.fill();
+    ctx.shadowBlur=0; ctx.restore();
+  }
+  function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // Sky
+    const sky=ctx.createLinearGradient(0,0,0,c.height*0.55);
+    sky.addColorStop(0,'#050510'); sky.addColorStop(1,'#0a1020');
+    ctx.fillStyle=sky; ctx.fillRect(0,0,c.width,c.height*0.55);
+    // Ground
+    const gr=ctx.createLinearGradient(0,c.height*0.55,0,c.height);
+    gr.addColorStop(0,'#0d1f0d'); gr.addColorStop(1,'#081008');
+    ctx.fillStyle=gr; ctx.fillRect(0,c.height*0.55,c.width,c.height);
+    // Grid ground
+    ctx.strokeStyle='#00ff8811'; ctx.lineWidth=1;
+    for(let i=0;i<c.width;i+=25){ ctx.beginPath(); ctx.moveTo(i,c.height*0.55); ctx.lineTo(i,c.height); ctx.stroke(); }
+    for(let j=c.height*0.55;j<c.height;j+=18){ ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(c.width,j); ctx.stroke(); }
+    // Tanks
+    drawTank(c.width*0.22, c.height*0.65, '#00ff8877', '#00ff88', 1);
+    drawTank(c.width*0.75, c.height*0.65, '#ff003c77', '#ff003c', -1);
+    // Shell
+    if(Math.sin(t*0.07)>0.5){
+      const sx=c.width*0.22+30+(Math.sin(t*0.07)*c.width*0.25);
+      ctx.fillStyle='#00ff88'; ctx.shadowColor='#00ff88'; ctx.shadowBlur=10;
+      ctx.beginPath(); ctx.arc(sx, c.height*0.62, 4, 0, Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+    }
+    // Horizon glow
+    ctx.fillStyle='#00ff8808';
+    ctx.fillRect(0,c.height*0.53,c.width,8);
+    t++; requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// ── NINJA CANVAS ──
+(function(){
+  const c = document.getElementById('ninjaCanvas');
+  const ctx = fitCanvas(c);
+  let t = 0;
+  const platforms = [{x:0,y:c.height*0.8,w:c.width},{x:c.width*0.55,y:c.height*0.55,w:100},{x:c.width*0.2,y:c.height*0.4,w:80}];
+  function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // BG gradient
+    const bg=ctx.createLinearGradient(0,0,0,c.height);
+    bg.addColorStop(0,'#050510'); bg.addColorStop(1,'#100a20');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,c.width,c.height);
+    // Moving BG lines
+    ctx.strokeStyle='#ffe60008'; ctx.lineWidth=1;
+    for(let i=0;i<8;i++){
+      const lx=(i*(c.width/7)+t*1.2)%c.width;
+      ctx.beginPath(); ctx.moveTo(lx,0); ctx.lineTo(lx,c.height); ctx.stroke();
+    }
+    // Platforms
+    platforms.forEach(p=>{
+      const pg=ctx.createLinearGradient(0,0,0,12);
+      pg.addColorStop(0,'#ffe60088'); pg.addColorStop(1,'#ffe60011');
+      ctx.fillStyle=pg; ctx.shadowColor='#ffe600'; ctx.shadowBlur=6;
+      ctx.beginPath(); ctx.roundRect(p.x,p.y,p.w,10,3); ctx.fill();
+      ctx.shadowBlur=0;
+    });
+    // Ninja
+    const ny = c.height*0.8 - 35 - Math.abs(Math.sin(t*0.06))*90;
+    const nx = c.width*0.25 + Math.sin(t*0.04)*30;
+    ctx.save(); ctx.translate(nx,ny);
+    // body
+    ctx.fillStyle='#111'; ctx.beginPath(); ctx.roundRect(-8,-26,16,28,3); ctx.fill();
+    // scarf
+    ctx.strokeStyle='#ff003c'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(0,-20); ctx.quadraticCurveTo(12,-15,8,-5); ctx.stroke();
+    // head
+    ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.arc(0,-33,10,0,Math.PI*2); ctx.fill();
+    // eyes
+    ctx.fillStyle='#ffe600'; ctx.fillRect(-5,-35,4,3); ctx.fillRect(2,-35,4,3);
+    // slash effect
+    ctx.strokeStyle='#ffe600'; ctx.lineWidth=2; ctx.globalAlpha=Math.abs(Math.sin(t*0.12));
+    ctx.shadowColor='#ffe600'; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.moveTo(-18,-10); ctx.lineTo(18,-30); ctx.stroke();
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+    ctx.restore();
+    // Score counter
+    ctx.font='bold 11px "Share Tech Mono",monospace';
+    ctx.fillStyle='#ffe60099';
+    ctx.textAlign='left';
+    ctx.fillText('SCORE: ' + Math.floor(t*3.7), 12, 22);
     t++; requestAnimationFrame(loop);
   }
   loop();
